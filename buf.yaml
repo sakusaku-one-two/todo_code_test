@@ -1,0 +1,14 @@
+# For details on buf.yaml configuration, visit https://buf.build/docs/configuration/v2/buf-yaml
+version: v2
+modules:
+  # Each module entry defines a path, which must be relative to the directory where the
+  # buf.yaml is located. You can also specify directories to exclude from a module.
+  - path: proto/todo/v1
+    # Modules can also optionally specify their Buf Schema Repository name if it exists.
+    
+    lint:
+      use:
+        - STANDARD
+    breaking:
+      use:
+        - FILE

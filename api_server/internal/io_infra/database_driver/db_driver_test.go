@@ -6,6 +6,8 @@ import (
 
 func Test_connection_test(t *testing.T) {
 	conn, err := NewMySqlConnectionHandler()
+	defer conn.Close()
+
 	if err != nil {
 		t.Log("DB 接続失敗", err.Error())
 	}
@@ -15,7 +17,5 @@ func Test_connection_test(t *testing.T) {
 			"DBとの接続に問題なし",
 		)
 	}
-
-	defer conn.Close()
 
 }

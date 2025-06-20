@@ -1,0 +1,18 @@
+
+
+services:
+  api_server:
+    dockerfile: ./api_server/Dockerfile
+  db:
+    image: mysql
+    restart: always
+    env: .env.mysql
+
+  
+
+
+
+
+# サンプルアプリなので永続化の設定は行いませんでした。
+
+

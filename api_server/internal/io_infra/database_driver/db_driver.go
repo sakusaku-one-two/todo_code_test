@@ -14,7 +14,6 @@ type ConnectionHandler[DriverType any] interface {
 
 // --------------------------[mysql用のdb clientの作成]--------------------------//
 
-// type ailas
 type DriverTypeAsMySql = mysql.MySQLDriver
 
 /*
@@ -44,7 +43,7 @@ func NewMySqlConnectionHandler() (ConnectionHandler[DriverTypeAsMySql], error) {
 	return my_sql_handler, nil
 }
 
-func (msh *MySqlConnectionHandler) GetDriver() mysql.MySQLDriver {
+func (msh *MySqlConnectionHandler) GetDriver() *mysql.MySQLDriver {
 	return msh.driver
 }
 
