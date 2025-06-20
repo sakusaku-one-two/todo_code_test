@@ -17,6 +17,13 @@ type ConnectionHandler[DriverType any] interface {
 // type ailas
 type DriverTypeAsMySql = mysql.MySQLDriver
 
+/*
+	レポジトリが ConnectionHandlerを扱う際には　DriverTypeAsMySqlをジェネリックに差し込む
+	サンプル：
+		 ConnectionHandler[database_driver.DriverTypeAsMySql]
+
+*/
+
 type MySqlConnectionHandler struct {
 	driver *mysql.MySQLDriver
 }
