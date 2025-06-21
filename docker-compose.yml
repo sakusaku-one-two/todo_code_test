@@ -1,12 +1,13 @@
 
 
 services:
-  api_server:
-    dockerfile: ./api_server/Dockerfile
+  # api_server:
+  #   dockerfile: ./api_server/Dockerfile
   db:
     image: mysql
     restart: always
-    env: .env.mysql
+    env_file: 
+      - .env.mysql
 
   
 

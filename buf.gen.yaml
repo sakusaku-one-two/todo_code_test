@@ -1,6 +1,5 @@
 version: v1
 plugins:
-  # protoc-gen-goプラグインの指定
   - plugin: go
     out: api_server/internal/grpc_gen # 出力先
     opt: paths=source_relative

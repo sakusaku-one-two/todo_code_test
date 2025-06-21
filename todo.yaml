@@ -1,0 +1,13 @@
+
+
+
+todo:
+  - データベースの構築: docker compose に記載
+    - driverの構築
+  - sql boilerのサンプルコードの作成:
+      - migrationを実装:
+      - db client (driverの作成)
+  - migration の作成
+  - grpcを動かすサーバーの構築:
+   - server side
+   - client side
