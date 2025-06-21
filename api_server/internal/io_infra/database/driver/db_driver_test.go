@@ -1,4 +1,4 @@
-package database_driver
+package driver
 
 import (
 	"testing"

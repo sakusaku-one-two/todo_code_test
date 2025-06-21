@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_database_config(t *testing.T) {
+func Test_database_client_config(t *testing.T) {
 	if DB_ADDR != "" &&
 		DB_PASSWORD != "" &&
 		DB_PORT != "" {
@@ -14,4 +14,8 @@ func Test_database_config(t *testing.T) {
 	} else {
 		t.Error(errors.New("データベースの環境変数の取得に失敗"))
 	}
+}
+
+func Test_server_endpoint_config(t *testing.T) {
+
 }
