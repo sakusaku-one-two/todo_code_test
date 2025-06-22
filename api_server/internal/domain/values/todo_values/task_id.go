@@ -5,11 +5,11 @@ import (
 )
 
 type TaskId struct {
-	value uuid.UUID
+	value string
 }
 
 func NewTaskId() (TaskId, error) {
 	return TaskId{
-		value: uuid.New(),
+		value: uuid.New().String(),
 	}, nil
 }
