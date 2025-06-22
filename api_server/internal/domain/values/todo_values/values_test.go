@@ -44,4 +44,18 @@ func Test_id(t *testing.T) {
 	} else {
 		t.Error("TasiKIdの比較演算(!=)を用いた比較が失敗")
 	}
+
+	fmt.Println("Ioから無効な値が入った際のエラー確認開始")
+	const fake_task_id_value = "onaka hetta!!"
+
+	_, err := NewTaskId(fake_task_id_value)
+
+	if err != nil {
+		fmt.Println("NewTaskIdのエラー生成成功", err)
+	} else {
+		t.Error("UUID型として変換出来ない文字列をUUIDとして認識してしまった")
+	}
+
+	fmt.Println("Ioから無効な値が入った際のエラー確認完了")
+
 }
