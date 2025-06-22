@@ -11,7 +11,7 @@ type Limit struct {
 
 func NewLimit(limit_time time.Time) (limit Limit, err error) {
 	if limit_time.After(time.Now()) { // 現在時刻より前の時刻の場合はエラー
-		return limit, fmt.Errorf("the deadline rule is that it must be later than now %s >= %s", limit_time, time.Now())
+		return limit, fmt.Errorf("the deadline rule is that it must be later than now: %s >= %s", limit_time, time.Now())
 	}
 	limit.value = limit_time
 	return limit, err
