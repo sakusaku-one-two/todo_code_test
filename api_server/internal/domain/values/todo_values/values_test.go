@@ -26,7 +26,7 @@ func Test_id(t *testing.T) {
 	fmt.Println("TaskIdのテストを開始")
 	defer fmt.Println("TaskIdのテスト終了")
 	// IDのテスト
-	sample_id, _ := NewTaskId()
+	sample_id, _ := GenerateTaskId()
 	//同一性の確認1
 	if sample_id == sample_id {
 		// 比較演算子で問題なく同一性を保証できるかの確認
@@ -35,7 +35,7 @@ func Test_id(t *testing.T) {
 		t.Error("TaskIDの比較演算子（==）を用いた比較が失敗")
 	}
 
-	other_id, _ := NewTaskId()
+	other_id, _ := GenerateTaskId()
 
 	// 同一性の確認2
 	if sample_id != other_id {
