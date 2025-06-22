@@ -1,8 +1,8 @@
 version: v1
 plugins:
   - plugin: go
-    out: api_server/internal/grpc_gen # 出力先
+    out: api_server/internal/grpc_gen/todo/v1 # 出力先
     opt: paths=source_relative
   - plugin: go 
-    out: client/internal/grpc_gen
+    out: client/internal/grpc_gen/todo/v1
     opt: paths=source_relative

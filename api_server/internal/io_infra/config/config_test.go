@@ -17,5 +17,6 @@ func Test_database_client_config(t *testing.T) {
 }
 
 func Test_server_endpoint_config(t *testing.T) {
-
+	if SERVER_ADDR != "" {
+	}
 }

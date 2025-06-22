@@ -1,7 +1,7 @@
 package grpc_server
 
 import (
-	pb "api/internal/grpc_gen"
+	pb "api/internal/grpc_gen/todo/v1"
 	"api/util"
 	"context"
 	"errors"

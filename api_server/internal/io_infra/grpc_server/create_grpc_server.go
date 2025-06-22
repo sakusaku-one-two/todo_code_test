@@ -3,7 +3,7 @@ package grpc_server
 import (
 	"context"
 
-	pb "api/internal/grpc_gen"
+	pb "api/internal/grpc_gen/todo/v1"
 )
 
 // この型にGrpc Serverは依存する
