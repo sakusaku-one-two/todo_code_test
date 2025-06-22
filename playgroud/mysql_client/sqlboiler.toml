@@ -1,5 +1,4 @@
 
-
 [mysql]
   dbname  = "todo_database"
   host    = "localhost"

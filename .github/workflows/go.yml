@@ -23,7 +23,7 @@ jobs:
 
     # - name: Build
     #   run: go build -v ./...
-    
 
-    - name: Test
+
+    - name: Test All
       run: go test -v ./...
