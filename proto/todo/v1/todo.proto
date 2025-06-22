@@ -7,8 +7,13 @@ import "google/protobuf/timestamp.proto";
 
 package proto.todo.v1;
 
-option go_package = "api_server/internal";
+option go_package = "api_server/internal/grpc_gen/todo/v1;todo_v1";
 
+enum Status {
+    UNSPECIFIED = 0;
+    INCOMPLETE = 1;
+    COMPLETE = 2;
+}
 
 
 message Todo {
@@ -16,7 +21,22 @@ message Todo {
     string description = 2;
     google.protobuf.Timestamp limit = 3;
     google.protobuf.Timestamp created_at = 4;
-    bool status = 5;
+    google.protobuf.Timestamp update_at = 5;
+    Status status = 6;
+    bool is_activate = 7;
+}
+
+message TodoList {
+    repeated Todo Result = 1;
+}
+
+message GetALLRequest {
+    string request = 1;
+}
+
+
+message SearchRequest {
+  string query = 1;
 }
 
 
@@ -45,10 +65,7 @@ message NotifyStreamResponse {
 
 service TodoService {
     rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse){};
+    rpc GetAllTodo(GetALLRequest) returns(TodoList){};
+    rpc FindTodo(stream SearchRequest) returns(stream TodoList){};
 }
 
-
-
-service NotifyService {
-    rpc NotifyStream(NotifyStreamRequest) returns (stream NotifyStreamResponse){};
-}

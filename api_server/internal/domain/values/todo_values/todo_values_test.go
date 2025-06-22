@@ -59,3 +59,17 @@ func Test_id(t *testing.T) {
 	fmt.Println("Ioから無効な値が入った際のエラー確認完了")
 
 }
+
+func Test_Status(t *testing.T) {
+	fmt.Println("Statusの検証開始")
+	defer fmt.Println("Statusの検証終了")
+	status, err := GetTodoStatus(COMPLETE)
+	fmt.Println("COMPLETE =>", status, err)
+	_, err = GetTodoStatus(10)
+	if err != nil {
+		fmt.Println("Statusエラー生成成功", err)
+	} else {
+		t.Error("Statusのエラー生成失敗")
+	}
+
+}
