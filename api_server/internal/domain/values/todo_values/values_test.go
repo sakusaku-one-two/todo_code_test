@@ -26,22 +26,22 @@ func Test_id(t *testing.T) {
 	fmt.Println("TaskIdのテストを開始")
 	defer fmt.Println("TaskIdのテスト終了")
 	// IDのテスト
-	sample_id, _ := GenerateTaskId()
+	sample_id := GenerateTaskId()
+	sample_copy_id, _ := NewTaskId(sample_id.value)
 	//同一性の確認1
-	if sample_id == sample_id {
+	if sample_id == sample_copy_id {
 		// 比較演算子で問題なく同一性を保証できるかの確認
-		fmt.Println("sample == sample_id OK!!")
+		fmt.Println("sample == sample_copy_id OK!!")
 	} else {
 		t.Error("TaskIDの比較演算子（==）を用いた比較が失敗")
 	}
 
-	other_id, _ := GenerateTaskId()
+	other_id := GenerateTaskId()
 
 	// 同一性の確認2
 	if sample_id != other_id {
 		fmt.Println("sample_id != other_id OK!!")
 	} else {
-		t.Error("TasiKIdの比較演算(!=)ヲ用いた比較が失敗")
+		t.Error("TasiKIdの比較演算(!=)を用いた比較が失敗")
 	}
-
 }
