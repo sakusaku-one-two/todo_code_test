@@ -27,7 +27,7 @@ func Test_id(t *testing.T) {
 	defer fmt.Println("TaskIdのテスト終了")
 	// IDのテスト
 	sample_id := GenerateTaskId()
-	sample_copy_id, _ := NewTaskId(sample_id.value)
+	sample_copy_id, _ := NewTaskId(sample_id.value) // Ioからの値を想定
 	//同一性の確認1
 	if sample_id == sample_copy_id {
 		// 比較演算子で問題なく同一性を保証できるかの確認
