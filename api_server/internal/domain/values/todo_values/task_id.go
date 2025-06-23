@@ -8,5 +8,3 @@ type TaskId struct {
 func NewTaskId(value int) (TaskId, error) {
 	return TaskId{value}, nil
 }
-
-// 新規作成

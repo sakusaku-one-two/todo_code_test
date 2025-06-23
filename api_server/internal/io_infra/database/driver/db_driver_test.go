@@ -5,6 +5,10 @@ import (
 	"context"
 	"fmt"
 	"testing"
+
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
+	qm "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 func Test_connection_test(t *testing.T) {
@@ -30,11 +34,31 @@ func Test_connection_test(t *testing.T) {
 	}
 
 	ctx := context.Background()
-
+	// 初期化スクリプトでinsertした値の取得
 	todo, err := m.FindTodo(ctx, conn, 2)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	fmt.Println(todo)
+
+	var todos []*m.Todo
+
+	m.NewQuery(
+		qm.From(m.TableNames.Todo),
+	).Bind(ctx, conn, &todos)
+
+	for _, todo := range todos {
+		fmt.Println(*todo)
+	}
+
+	new_todo := &m.Todo{
+		Title:       "sample_title_99",
+		Description: null.String{String: "sample_description_99", Valid: true},
+	}
+
+	err = new_todo.Insert(ctx, conn, boil.Infer())
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 }
