@@ -17,7 +17,11 @@ type Title struct {
 func NewTitle(value string) (Title, error) {
 
 	if len(value) >= RULE_OVER_COUNT && len(value) <= RULE_UNDER_COUNT {
-		return Title{}, fmt.Errorf("must be length over %d and under %d :: target value => %s , length => %d", RULE_OVER_COUNT, RULE_UNDER_COUNT, value, len(value))
+		return Title{}, fmt.Errorf("must be length over %d and under %d :: target value => %s , length => %d",
+			RULE_OVER_COUNT,
+			RULE_UNDER_COUNT,
+			value,
+			len(value))
 	}
 
 	return Title{

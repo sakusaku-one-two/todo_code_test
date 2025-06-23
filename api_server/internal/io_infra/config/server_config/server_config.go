@@ -6,5 +6,5 @@ import (
 
 var (
 	SERVER_PORT = util.GetEnv("SERVER_PORT", "8080")
-	SERVER_ADDR = util.GetEnv("SERVER_ADDR", "localhost")
+	SERVER_HOST = util.GetEnv("SERVER_HOST", "localhost")
 )

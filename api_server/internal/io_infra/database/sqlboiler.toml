@@ -8,3 +8,4 @@
   pass    = "todo_database_password"
   sslmode = "false"
   tinyint_as_int = true
+

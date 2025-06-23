@@ -1,4 +1,4 @@
-package config
+package my_sql_config
 
 import (
 	"errors"
@@ -13,10 +13,5 @@ func Test_database_client_config(t *testing.T) {
 
 	} else {
 		t.Error(errors.New("データベースの環境変数の取得に失敗"))
-	}
-}
-
-func Test_server_endpoint_config(t *testing.T) {
-	if SERVER_ADDR != "" {
 	}
 }
