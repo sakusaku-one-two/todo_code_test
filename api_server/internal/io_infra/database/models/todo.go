@@ -24,12 +24,13 @@ import (
 
 // Todo is an object representing the database table.
 type Todo struct {
-	ID          int         `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Title       string      `boil:"title" json:"title" toml:"title" yaml:"title"`
-	Description null.String `boil:"description" json:"description,omitempty" toml:"description" yaml:"description,omitempty"`
-	CreatedAt   null.Time   `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
-	UpdateAt    null.Time   `boil:"update_at" json:"update_at,omitempty" toml:"update_at" yaml:"update_at,omitempty"`
-	IsActivate  null.Int8   `boil:"is_activate" json:"is_activate,omitempty" toml:"is_activate" yaml:"is_activate,omitempty"`
+	ID          int       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Title       string    `boil:"title" json:"title" toml:"title" yaml:"title"`
+	Description string    `boil:"description" json:"description" toml:"description" yaml:"description"`
+	LimitTime   time.Time `boil:"limit_time" json:"limit_time" toml:"limit_time" yaml:"limit_time"`
+	CreatedAt   time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdateAt    null.Time `boil:"update_at" json:"update_at,omitempty" toml:"update_at" yaml:"update_at,omitempty"`
+	IsActivate  int8      `boil:"is_activate" json:"is_activate" toml:"is_activate" yaml:"is_activate"`
 
 	R *todoR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L todoL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -39,6 +40,7 @@ var TodoColumns = struct {
 	ID          string
 	Title       string
 	Description string
+	LimitTime   string
 	CreatedAt   string
 	UpdateAt    string
 	IsActivate  string
@@ -46,6 +48,7 @@ var TodoColumns = struct {
 	ID:          "id",
 	Title:       "title",
 	Description: "description",
+	LimitTime:   "limit_time",
 	CreatedAt:   "created_at",
 	UpdateAt:    "update_at",
 	IsActivate:  "is_activate",
@@ -55,6 +58,7 @@ var TodoTableColumns = struct {
 	ID          string
 	Title       string
 	Description string
+	LimitTime   string
 	CreatedAt   string
 	UpdateAt    string
 	IsActivate  string
@@ -62,6 +66,7 @@ var TodoTableColumns = struct {
 	ID:          "todo.id",
 	Title:       "todo.title",
 	Description: "todo.description",
+	LimitTime:   "todo.limit_time",
 	CreatedAt:   "todo.created_at",
 	UpdateAt:    "todo.update_at",
 	IsActivate:  "todo.is_activate",
@@ -117,49 +122,26 @@ func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
-type whereHelpernull_String struct{ field string }
+type whereHelpertime_Time struct{ field string }
 
-func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
+func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
 }
-func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
+func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
 }
-func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LT, x)
 }
-func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LTE, x)
 }
-func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GT, x)
 }
-func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
-func (w whereHelpernull_String) LIKE(x null.String) qm.QueryMod {
-	return qm.Where(w.field+" LIKE ?", x)
-}
-func (w whereHelpernull_String) NLIKE(x null.String) qm.QueryMod {
-	return qm.Where(w.field+" NOT LIKE ?", x)
-}
-func (w whereHelpernull_String) IN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelpernull_String) NIN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
 type whereHelpernull_Time struct{ field string }
 
@@ -185,58 +167,22 @@ func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
 func (w whereHelpernull_Time) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
 func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
-type whereHelpernull_Int8 struct{ field string }
-
-func (w whereHelpernull_Int8) EQ(x null.Int8) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_Int8) NEQ(x null.Int8) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_Int8) LT(x null.Int8) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_Int8) LTE(x null.Int8) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_Int8) GT(x null.Int8) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_Int8) GTE(x null.Int8) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-func (w whereHelpernull_Int8) IN(slice []int8) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelpernull_Int8) NIN(slice []int8) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-func (w whereHelpernull_Int8) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Int8) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 var TodoWhere = struct {
 	ID          whereHelperint
 	Title       whereHelperstring
-	Description whereHelpernull_String
-	CreatedAt   whereHelpernull_Time
+	Description whereHelperstring
+	LimitTime   whereHelpertime_Time
+	CreatedAt   whereHelpertime_Time
 	UpdateAt    whereHelpernull_Time
-	IsActivate  whereHelpernull_Int8
+	IsActivate  whereHelperint8
 }{
 	ID:          whereHelperint{field: "`todo`.`id`"},
 	Title:       whereHelperstring{field: "`todo`.`title`"},
-	Description: whereHelpernull_String{field: "`todo`.`description`"},
-	CreatedAt:   whereHelpernull_Time{field: "`todo`.`created_at`"},
+	Description: whereHelperstring{field: "`todo`.`description`"},
+	LimitTime:   whereHelpertime_Time{field: "`todo`.`limit_time`"},
+	CreatedAt:   whereHelpertime_Time{field: "`todo`.`created_at`"},
 	UpdateAt:    whereHelpernull_Time{field: "`todo`.`update_at`"},
-	IsActivate:  whereHelpernull_Int8{field: "`todo`.`is_activate`"},
+	IsActivate:  whereHelperint8{field: "`todo`.`is_activate`"},
 }
 
 // TodoRels is where relationship names are stored.
@@ -256,8 +202,8 @@ func (*todoR) NewStruct() *todoR {
 type todoL struct{}
 
 var (
-	todoAllColumns            = []string{"id", "title", "description", "created_at", "update_at", "is_activate"}
-	todoColumnsWithoutDefault = []string{"title", "description"}
+	todoAllColumns            = []string{"id", "title", "description", "limit_time", "created_at", "update_at", "is_activate"}
+	todoColumnsWithoutDefault = []string{"title", "description", "limit_time"}
 	todoColumnsWithDefault    = []string{"id", "created_at", "update_at", "is_activate"}
 	todoPrimaryKeyColumns     = []string{"id"}
 	todoGeneratedColumns      = []string{}
@@ -620,8 +566,8 @@ func (o *Todo) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.CreatedAt).IsZero() {
-			queries.SetScanner(&o.CreatedAt, currTime)
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
 		}
 	}
 
@@ -863,8 +809,8 @@ func (o *Todo) Upsert(ctx context.Context, exec boil.ContextExecutor, updateColu
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.CreatedAt).IsZero() {
-			queries.SetScanner(&o.CreatedAt, currTime)
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
 		}
 	}
 

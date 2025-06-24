@@ -4,7 +4,9 @@
 package models
 
 var TableNames = struct {
-	Todo string
+	SchemaMigrations string
+	Todo             string
 }{
-	Todo: "todo",
+	SchemaMigrations: "schema_migrations",
+	Todo:             "todo",
 }

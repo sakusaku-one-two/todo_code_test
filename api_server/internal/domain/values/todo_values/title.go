@@ -28,3 +28,7 @@ func NewTitle(value string) (Title, error) {
 		value,
 	}, nil
 }
+
+func (t Title) GetValue() string {
+	return t.value
+}

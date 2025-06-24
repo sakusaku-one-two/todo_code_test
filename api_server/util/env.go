@@ -1,9 +1,11 @@
 package util
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 )
 
 /*
@@ -36,4 +38,20 @@ func DeleteEnv(env_name string) bool {
 		return false
 	}
 	return true
+}
+
+func GetEnvAsInt(env_name string, default_value int) int {
+	env_value := GetEnv(env_name, "nothing")
+	if env_value == "nothing" {
+		return default_value
+	}
+	result, err := strconv.Atoi(env_value)
+	if err != nil {
+		ctx := context.Background()
+		slog.Log(ctx, slog.LevelError, err.Error())
+		return default_value
+	}
+
+	return result
+
 }

@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	qm "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -53,7 +53,8 @@ func Test_connection_test(t *testing.T) {
 
 	new_todo := &m.Todo{
 		Title:       "sample_title_99",
-		Description: null.String{String: "sample_description_99", Valid: true},
+		Description: "sample_description_99",
+		LimitTime:   time.Now(),
 	}
 
 	err = new_todo.Insert(ctx, conn, boil.Infer())
