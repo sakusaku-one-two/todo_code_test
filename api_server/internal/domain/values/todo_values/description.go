@@ -9,3 +9,7 @@ func NewDescription(description_value string) (Description, error) {
 		value: description_value,
 	}, nil
 }
+
+func (d *Description) GetValue() string {
+	return d.value
+}

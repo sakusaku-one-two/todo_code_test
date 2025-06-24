@@ -10,6 +10,9 @@ import (
 	"log/slog"
 	"sync"
 	"time"
+
+	"github.com/volatiletech/sqlboiler/v4/boil"
+	qm "github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 type TodoRepository struct {
@@ -29,21 +32,37 @@ func NewTodoRepostory() (TodoRepository, error) {
 }
 
 func (tr *TodoRepository) Create(insert_target entity.Todo) (bool, error) {
-	
 
 	todo := models.Todo{
 		Title:       insert_target.Title.GetValue(),
 		Description: insert_target.Description.GetValue(),
-		Limit: 
+		LimitTime:   insert_target.Limit.GetValue(),
 	}
-
 	ctx := context.Background()
-	todo.Insert(ctx)
+	if err := todo.Insert(ctx, tr.driver, boil.Infer()); err != nil {
+		return false, err
+	}
 
 	return true, nil
 }
 
 func (tr *TodoRepository) Read(id values.TaskId) (entity.Todo, error) {
+
+}
+
+func (tr *TodoRepository) GetAll() ([]*entity.Todo, error) {}
+
+func (tr *TodoRepository) FindAll(query string) ([]entity.Todo, error) {
+	var todos []entity.Todo
+	ctx := context.Background()
+	if err := models.NewQuery(
+		qm.From(models.TableNames.Todo),
+		qm.Where("title Like %?%", query),
+	).Bind(ctx, tr.driver, todos); err != nil {
+		return todos, err
+	}
+
+	return todos, nil
 
 }
 
@@ -55,13 +74,13 @@ func (tr *TodoRepository) self_mangement_ping() {
 
 		if err := tr.driver.Ping(); err != nil {
 			slog.Log(context.Background(), slog.LevelWarn, err.Error(), helth_check_time)
-			tr.driver_update() //pingでダメだったら新しいドライバーコネクションに交換する
+			tr.driver_recreate() //pingでダメだったら新しいドライバーコネクションに交換する
 		}
 
 	}
 }
 
-func (tr *TodoRepository) driver_update() {
+func (tr *TodoRepository) driver_recreate() {
 	mu := sync.Mutex{}
 	mu.Lock()
 	defer mu.Unlock()

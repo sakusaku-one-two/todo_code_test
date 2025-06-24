@@ -16,3 +16,7 @@ func NewLimit(limit_time time.Time) (limit Limit, err error) {
 	limit.value = limit_time
 	return limit, err
 }
+
+func (l *Limit) GetValue() time.Time {
+	return l.value
+}

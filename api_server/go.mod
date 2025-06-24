@@ -13,6 +13,7 @@ require (
 	github.com/volatiletech/randomize v0.0.1
 	github.com/volatiletech/sqlboiler/v4 v4.19.1
 	github.com/volatiletech/strmangle v0.0.8
+	golang.org/x/net v0.38.0
 	google.golang.org/protobuf v1.36.6
 )
 

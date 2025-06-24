@@ -566,7 +566,7 @@ const file_todo_proto_rawDesc = "" +
 	"CreateTodo\x12 .proto.todo.v1.CreateTodoRequest\x1a!.proto.todo.v1.CreateTodoResponse\"\x00\x12E\n" +
 	"\n" +
 	"GetAllTodo\x12\x1c.proto.todo.v1.GetALLRequest\x1a\x17.proto.todo.v1.TodoList\"\x00\x12G\n" +
-	"\bFindTodo\x12\x1c.proto.todo.v1.SearchRequest\x1a\x17.proto.todo.v1.TodoList\"\x00(\x010\x01B.Z,api_server/internal/grpc_gen/todo/v1;todo_v1b\x06proto3"
+	"\bFindTodo\x12\x1c.proto.todo.v1.SearchRequest\x1a\x17.proto.todo.v1.TodoList\"\x00(\x010\x01B'Z%api/internal/grpc_gen/todo/v1;todo_v1b\x06proto3"
 
 var (
 	file_todo_proto_rawDescOnce sync.Once

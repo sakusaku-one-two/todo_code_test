@@ -8,3 +8,7 @@ type TaskId struct {
 func NewTaskId(value int) (TaskId, error) {
 	return TaskId{value}, nil
 }
+
+func (t *TaskId) GetValue() int {
+	return t.value
+}

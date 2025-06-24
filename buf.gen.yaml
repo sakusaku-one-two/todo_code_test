@@ -1,8 +1,16 @@
-version: v1
+version: v2
 plugins:
-  - plugin: go
+  - local: protoc-gen-go
     out: api_server/internal/grpc_gen/todo/v1 # 出力先
     opt: paths=source_relative
-  - plugin: go 
+  - local: protoc-gen-connect-go
+    out: api_server/internal/grpc_gen/todo/v1
+    opt: paths=source_relative
+
+  - local: protoc-gen-go 
+    out: client/internal/grpc_gen/todo/v1
+    opt: paths=source_relative
+  
+  - local: protoc-gen-connect-go 
     out: client/internal/grpc_gen/todo/v1
     opt: paths=source_relative

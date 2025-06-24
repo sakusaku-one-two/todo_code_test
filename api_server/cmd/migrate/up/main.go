@@ -26,12 +26,11 @@ func main() {
 		return
 	}
 
-	//
-	// if err := m.Force(1); err != nil {
-	// 	fmt.Println("force err>", err.Error())
-	// 	return
-	//}
-	m.Force(1)
+	no, is_dirty, _ := m.Version()
+
+	if is_dirty {
+		m.Force(int(no))
+	}
 
 	if err = m.Up(); err != nil {
 		fmt.Println("up err => ", err.Error())

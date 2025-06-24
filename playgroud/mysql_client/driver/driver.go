@@ -13,7 +13,7 @@ import (
 // MYSQL_PASSWORD=todo_database_password
 
 func NewD() (*sql.DB, error) {
-	new_db, err := sql.Open("mysql", "mysql_user:todo_database_password@localhost:3306/todo_database")
+	new_db, err := sql.Open("mysql", "mysql_user:todo_database_password@(localhost:3306)/todo_database")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

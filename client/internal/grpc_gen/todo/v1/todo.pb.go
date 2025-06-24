@@ -25,22 +25,19 @@ const (
 type Status int32
 
 const (
-	Status_UNSPECIFIED Status = 0
-	Status_INCOMPLETE  Status = 1
-	Status_COMPLETE    Status = 2
+	Status_INCOMPLETE Status = 0
+	Status_COMPLETE   Status = 2
 )
 
 // Enum value maps for Status.
 var (
 	Status_name = map[int32]string{
-		0: "UNSPECIFIED",
-		1: "INCOMPLETE",
+		0: "INCOMPLETE",
 		2: "COMPLETE",
 	}
 	Status_value = map[string]int32{
-		"UNSPECIFIED": 0,
-		"INCOMPLETE":  1,
-		"COMPLETE":    2,
+		"INCOMPLETE": 0,
+		"COMPLETE":   2,
 	}
 )
 
@@ -73,13 +70,14 @@ func (Status) EnumDescriptor() ([]byte, []int) {
 
 type Todo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	Limit         *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=limit,proto3" json:"limit,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdateAt      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=update_at,json=updateAt,proto3" json:"update_at,omitempty"`
-	Status        Status                 `protobuf:"varint,6,opt,name=status,proto3,enum=proto.todo.v1.Status" json:"status,omitempty"`
-	IsActivate    bool                   `protobuf:"varint,7,opt,name=is_activate,json=isActivate,proto3" json:"is_activate,omitempty"`
+	Id            *int32                 `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	LimitTime     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=limit_time,json=limitTime,proto3" json:"limit_time,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Status        Status                 `protobuf:"varint,7,opt,name=status,proto3,enum=proto.todo.v1.Status" json:"status,omitempty"`
+	IsActivate    bool                   `protobuf:"varint,8,opt,name=is_activate,json=isActivate,proto3" json:"is_activate,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -114,6 +112,13 @@ func (*Todo) Descriptor() ([]byte, []int) {
 	return file_todo_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *Todo) GetId() int32 {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return 0
+}
+
 func (x *Todo) GetTitle() string {
 	if x != nil {
 		return x.Title
@@ -128,9 +133,9 @@ func (x *Todo) GetDescription() string {
 	return ""
 }
 
-func (x *Todo) GetLimit() *timestamppb.Timestamp {
+func (x *Todo) GetLimitTime() *timestamppb.Timestamp {
 	if x != nil {
-		return x.Limit
+		return x.LimitTime
 	}
 	return nil
 }
@@ -142,9 +147,9 @@ func (x *Todo) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *Todo) GetUpdateAt() *timestamppb.Timestamp {
+func (x *Todo) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.UpdateAt
+		return x.UpdatedAt
 	}
 	return nil
 }
@@ -153,7 +158,7 @@ func (x *Todo) GetStatus() Status {
 	if x != nil {
 		return x.Status
 	}
-	return Status_UNSPECIFIED
+	return Status_INCOMPLETE
 }
 
 func (x *Todo) GetIsActivate() bool {
@@ -520,17 +525,21 @@ var File_todo_proto protoreflect.FileDescriptor
 const file_todo_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"todo.proto\x12\rproto.todo.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x02\n" +
-	"\x04Todo\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\x120\n" +
-	"\x05limit\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x05limit\x129\n" +
+	"todo.proto\x12\rproto.todo.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdb\x02\n" +
+	"\x04Todo\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\x05H\x00R\x02id\x88\x01\x01\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x129\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x127\n" +
-	"\tupdate_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\bupdateAt\x12-\n" +
-	"\x06status\x18\x06 \x01(\x0e2\x15.proto.todo.v1.StatusR\x06status\x12\x1f\n" +
-	"\vis_activate\x18\a \x01(\bR\n" +
-	"isActivate\"7\n" +
+	"limit_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tlimitTime\x129\n" +
+	"\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12-\n" +
+	"\x06status\x18\a \x01(\x0e2\x15.proto.todo.v1.StatusR\x06status\x12\x1f\n" +
+	"\vis_activate\x18\b \x01(\bR\n" +
+	"isActivateB\x05\n" +
+	"\x03_id\"7\n" +
 	"\bTodoList\x12+\n" +
 	"\x06Result\x18\x01 \x03(\v2\x13.proto.todo.v1.TodoR\x06Result\")\n" +
 	"\rGetALLRequest\x12\x18\n" +
@@ -547,18 +556,17 @@ const file_todo_proto_rawDesc = "" +
 	"\x06desier\x18\x01 \x01(\bR\x06desier\"L\n" +
 	"\x14NotifyStreamResponse\x124\n" +
 	"\vnotify_todo\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\n" +
-	"notifyTodo*7\n" +
-	"\x06Status\x12\x0f\n" +
-	"\vUNSPECIFIED\x10\x00\x12\x0e\n" +
+	"notifyTodo*&\n" +
+	"\x06Status\x12\x0e\n" +
 	"\n" +
-	"INCOMPLETE\x10\x01\x12\f\n" +
+	"INCOMPLETE\x10\x00\x12\f\n" +
 	"\bCOMPLETE\x10\x022\xf2\x01\n" +
 	"\vTodoService\x12S\n" +
 	"\n" +
 	"CreateTodo\x12 .proto.todo.v1.CreateTodoRequest\x1a!.proto.todo.v1.CreateTodoResponse\"\x00\x12E\n" +
 	"\n" +
 	"GetAllTodo\x12\x1c.proto.todo.v1.GetALLRequest\x1a\x17.proto.todo.v1.TodoList\"\x00\x12G\n" +
-	"\bFindTodo\x12\x1c.proto.todo.v1.SearchRequest\x1a\x17.proto.todo.v1.TodoList\"\x00(\x010\x01B.Z,api_server/internal/grpc_gen/todo/v1;todo_v1b\x06proto3"
+	"\bFindTodo\x12\x1c.proto.todo.v1.SearchRequest\x1a\x17.proto.todo.v1.TodoList\"\x00(\x010\x01B'Z%api/internal/grpc_gen/todo/v1;todo_v1b\x06proto3"
 
 var (
 	file_todo_proto_rawDescOnce sync.Once
@@ -588,9 +596,9 @@ var file_todo_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
 }
 var file_todo_proto_depIdxs = []int32{
-	10, // 0: proto.todo.v1.Todo.limit:type_name -> google.protobuf.Timestamp
+	10, // 0: proto.todo.v1.Todo.limit_time:type_name -> google.protobuf.Timestamp
 	10, // 1: proto.todo.v1.Todo.created_at:type_name -> google.protobuf.Timestamp
-	10, // 2: proto.todo.v1.Todo.update_at:type_name -> google.protobuf.Timestamp
+	10, // 2: proto.todo.v1.Todo.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 3: proto.todo.v1.Todo.status:type_name -> proto.todo.v1.Status
 	1,  // 4: proto.todo.v1.TodoList.Result:type_name -> proto.todo.v1.Todo
 	1,  // 5: proto.todo.v1.TodoResponse.result:type_name -> proto.todo.v1.Todo
@@ -614,6 +622,7 @@ func file_todo_proto_init() {
 	if File_todo_proto != nil {
 		return
 	}
+	file_todo_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
