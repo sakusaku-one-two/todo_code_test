@@ -30,8 +30,7 @@ func Test_repo(t *testing.T) {
 		Limit:       limit,
 		Status:      status,
 	}
-	ok, err := repo.Create(todo)
-	fmt.Println(all_todo, ok, err)
+	repo.Create(todo)
 
 	data, err := repo.FindAll(
 		"saku",

@@ -20,27 +20,27 @@ import (
 	シングルトンとして振る舞う。
 */
 
-var todo_repositroy *TodoRepository // シングルトンとして扱う
+var todo_repository *TodoRepository // シングルトンとして扱う
 
 type TodoRepository struct {
 	driver *sql.DB
 }
 
 func NewTodoRepostory() (*TodoRepository, error) { // シングルトンを返却
-	if todo_repositroy != nil && todo_repositroy.driver != nil {
-		return todo_repositroy, nil
+	if todo_repository != nil && todo_repository.driver != nil {
+		return todo_repository, nil
 	}
 
-	todo_repositroy = new(TodoRepository)
+	todo_repository = new(TodoRepository)
 
 	db, err := driver.NewMySqlDriver()
 	if err != nil {
 		return nil, err
 	}
-	todo_repositroy.driver = db
-	//dirverの死活監視を行うゴルーチン
-	go todo_repositroy.self_mangement_ping()
-	return todo_repositroy, nil
+	todo_repository.driver = db
+
+	go todo_repository.self_mangement_ping() //dirverの死活監視を行うゴルーチン
+	return todo_repository, nil
 }
 
 func (tr *TodoRepository) Create(insert_target entity.Todo) (bool, error) {
@@ -89,7 +89,7 @@ func (tr *TodoRepository) FindAll(query string) ([]entity.Todo, error) {
 	ctx := context.Background()
 	if err := models.NewQuery(
 		qm.From(models.TableNames.Todo),
-		qm.Where("title Like ?", query),
+		qm.Where("title Like '%?%'", query),
 	).Bind(ctx, tr.driver, todos); err != nil {
 		return nil, err
 	}

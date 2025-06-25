@@ -12,8 +12,6 @@ import (
 type TodoServer struct {
 }
 
-func NewTodoServer()
-
 func (ts TodoServer) CreateTodo(ctx context.Context, req *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error) {
 
 	todo := req.Msg.RequestTodo
@@ -71,4 +69,8 @@ func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1
 		stream.Send(&v1.TodoListResponse{Result: todos, Error: ""})
 	}
 
+}
+
+func (TodoServer) DeleteTodo(ctx context.Context, req *connect.Request[v1.DeleteTodoRequest]) (*connect.Response[v1.DeleteTodoResponse], error) {
+	return nil, nil
 }

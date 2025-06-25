@@ -16,7 +16,7 @@ func main() {
 	defer db.Close()
 	driver, _ := mysql.WithInstance(db, &mysql.Config{})
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://../../../internal/io_infra/database/migration",
+		"file://internal/io_infra/database/migration", //go.sum　go.modがあるディレクトリで　go run cmd/migrate/up/main.go で自動でマイグレーションが走るようにpathを調整しました。
 		"mysql",
 		driver,
 	)
@@ -38,5 +38,5 @@ func main() {
 		return
 	}
 
-	fmt.Println("MIGRATE DONE")
+	fmt.Println("テーブルのマイグレーションが完了しました。")
 }

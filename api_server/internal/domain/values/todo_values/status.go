@@ -11,6 +11,7 @@ const (
 
 var (
 	statsuMap        = map[int]Status{}
+	reverseMap       = map[Status]int{}
 	MAX_STATUS_COUNT int
 )
 
@@ -18,6 +19,9 @@ func init() {
 	statsuMap[COMPLETE] = Status{value: "COMPLETE"}
 	statsuMap[INCOMPETE] = Status{value: "INCOMPLETE"}
 	MAX_STATUS_COUNT = len(statsuMap) - 1
+	for key, value := range statsuMap {
+		reverseMap[value] = key
+	}
 }
 
 type Status struct {
@@ -30,4 +34,8 @@ func GetTodoStatus(enum_constraint_no int) (Status, error) {
 	}
 	//読み込み専用なので、データ競合を防ぐLockはかけない。
 	return statsuMap[enum_constraint_no], nil
+}
+
+func GetTodoStatusNumber(status Status) int {
+	return reverseMap[status]
 }

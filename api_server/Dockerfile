@@ -1,15 +1,28 @@
-FROM golang:1.24
+
+#BUILD IMAGE
+FROM golang:1.24 AS go_build_image
+
 
 WORKDIR /usr/src/app
 COPY . .
 
 
-# pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
-COPY go.mod go.sum ./
+
 RUN go mod download
 
+RUN go build -v -o /execute_go ./cmd/api/main.go
 
-RUN go build -v -o /usr/local/bin/app/cmd/api ./...
 
 
-CMD ["go test ./..","app/"]
+
+# DEPLOY
+
+FROM golang:1.24
+
+WORKDIR /app/bin
+
+COPY --from=go_build_image /execute_go /app/bin/execute_go
+
+
+
+CMD ["go run ./cmd/migrate/up/main.go"]

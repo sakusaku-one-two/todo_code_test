@@ -18,8 +18,18 @@ migrate -path ./migration -database "mysql://mysql_user:todo_database_password@t
  grpcurl \
     -protoset <(buf build -o -) -plaintext \
     -d '{"request": "Jane"}'
-    localhost:8080 todo.v1.TodoService/GetAll
+    localhost:8080 todo.v1.TodoService/GetAllTodo
 
      grpcurl     -protoset <(buf build -o -) -plaintext     -d '{"query": "self create todo"}'     localhost:8080 proto.todo.v1.TodoService/FindTodo
+
+
+     curl     --header "Content-Type: application/json"     --data '{"request": "Jane"}'     http://localhost:8080/proto.todo.v1.TodoService/GetAllTodo
+
+    message GetALLRequest {
+    string request = 1;
+    bool is_sort = 2;
+}
+
+
 
 ```
