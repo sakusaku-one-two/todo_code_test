@@ -27,7 +27,7 @@ func (ts TodoServer) CreateTodo(ctx context.Context, req *connect.Request[v1.Cre
 	return res, nil
 }
 
-func (ts TodoServer) GetAllTodo(ctx context.Context, req *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoList], error) {
+func (ts TodoServer) GetAllTodo(ctx context.Context, req *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error) {
 	todos := []*v1.Todo{}
 	for i := 0; i < 10; i++ {
 
@@ -38,10 +38,10 @@ func (ts TodoServer) GetAllTodo(ctx context.Context, req *connect.Request[v1.Get
 		todos = append(todos, temp)
 	}
 
-	return connect.NewResponse(&v1.TodoList{Result: todos}), nil
+	return connect.NewResponse(&v1.TodoListResponse{Result: todos, Error: ""}), nil
 }
 
-func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1.SearchRequest, v1.TodoList]) error {
+func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1.SearchRequest, v1.TodoListResponse]) error {
 
 	go func() {
 		for {
@@ -68,7 +68,7 @@ func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1
 			todos = append(todos, temp)
 		}
 
-		stream.Send(&v1.TodoList{Result: todos})
+		stream.Send(&v1.TodoListResponse{Result: todos, Error: ""})
 	}
 
 }

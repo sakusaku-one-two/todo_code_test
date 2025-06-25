@@ -44,8 +44,8 @@ const (
 // TodoServiceClient is a client for the proto.todo.v1.TodoService service.
 type TodoServiceClient interface {
 	CreateTodo(context.Context, *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error)
-	GetAllTodo(context.Context, *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoList], error)
-	FindTodo(context.Context) *connect.BidiStreamForClient[v1.SearchRequest, v1.TodoList]
+	GetAllTodo(context.Context, *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error)
+	FindTodo(context.Context) *connect.BidiStreamForClient[v1.SearchRequest, v1.TodoListResponse]
 }
 
 // NewTodoServiceClient constructs a client for the proto.todo.v1.TodoService service. By default,
@@ -65,13 +65,13 @@ func NewTodoServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(todoServiceMethods.ByName("CreateTodo")),
 			connect.WithClientOptions(opts...),
 		),
-		getAllTodo: connect.NewClient[v1.GetALLRequest, v1.TodoList](
+		getAllTodo: connect.NewClient[v1.GetALLRequest, v1.TodoListResponse](
 			httpClient,
 			baseURL+TodoServiceGetAllTodoProcedure,
 			connect.WithSchema(todoServiceMethods.ByName("GetAllTodo")),
 			connect.WithClientOptions(opts...),
 		),
-		findTodo: connect.NewClient[v1.SearchRequest, v1.TodoList](
+		findTodo: connect.NewClient[v1.SearchRequest, v1.TodoListResponse](
 			httpClient,
 			baseURL+TodoServiceFindTodoProcedure,
 			connect.WithSchema(todoServiceMethods.ByName("FindTodo")),
@@ -83,8 +83,8 @@ func NewTodoServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 // todoServiceClient implements TodoServiceClient.
 type todoServiceClient struct {
 	createTodo *connect.Client[v1.CreateTodoRequest, v1.CreateTodoResponse]
-	getAllTodo *connect.Client[v1.GetALLRequest, v1.TodoList]
-	findTodo   *connect.Client[v1.SearchRequest, v1.TodoList]
+	getAllTodo *connect.Client[v1.GetALLRequest, v1.TodoListResponse]
+	findTodo   *connect.Client[v1.SearchRequest, v1.TodoListResponse]
 }
 
 // CreateTodo calls proto.todo.v1.TodoService.CreateTodo.
@@ -93,20 +93,20 @@ func (c *todoServiceClient) CreateTodo(ctx context.Context, req *connect.Request
 }
 
 // GetAllTodo calls proto.todo.v1.TodoService.GetAllTodo.
-func (c *todoServiceClient) GetAllTodo(ctx context.Context, req *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoList], error) {
+func (c *todoServiceClient) GetAllTodo(ctx context.Context, req *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error) {
 	return c.getAllTodo.CallUnary(ctx, req)
 }
 
 // FindTodo calls proto.todo.v1.TodoService.FindTodo.
-func (c *todoServiceClient) FindTodo(ctx context.Context) *connect.BidiStreamForClient[v1.SearchRequest, v1.TodoList] {
+func (c *todoServiceClient) FindTodo(ctx context.Context) *connect.BidiStreamForClient[v1.SearchRequest, v1.TodoListResponse] {
 	return c.findTodo.CallBidiStream(ctx)
 }
 
 // TodoServiceHandler is an implementation of the proto.todo.v1.TodoService service.
 type TodoServiceHandler interface {
 	CreateTodo(context.Context, *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error)
-	GetAllTodo(context.Context, *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoList], error)
-	FindTodo(context.Context, *connect.BidiStream[v1.SearchRequest, v1.TodoList]) error
+	GetAllTodo(context.Context, *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error)
+	FindTodo(context.Context, *connect.BidiStream[v1.SearchRequest, v1.TodoListResponse]) error
 }
 
 // NewTodoServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -155,10 +155,10 @@ func (UnimplementedTodoServiceHandler) CreateTodo(context.Context, *connect.Requ
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("proto.todo.v1.TodoService.CreateTodo is not implemented"))
 }
 
-func (UnimplementedTodoServiceHandler) GetAllTodo(context.Context, *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoList], error) {
+func (UnimplementedTodoServiceHandler) GetAllTodo(context.Context, *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("proto.todo.v1.TodoService.GetAllTodo is not implemented"))
 }
 
-func (UnimplementedTodoServiceHandler) FindTodo(context.Context, *connect.BidiStream[v1.SearchRequest, v1.TodoList]) error {
+func (UnimplementedTodoServiceHandler) FindTodo(context.Context, *connect.BidiStream[v1.SearchRequest, v1.TodoListResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("proto.todo.v1.TodoService.FindTodo is not implemented"))
 }

@@ -30,6 +30,15 @@ func (tuc *TodoUseCase[repoType]) CreateTodo(req *grpc_connection.CreateTodoRequ
 	return &grpc_connection.CreateTodoResponse{Result: false, CreatedTodo: request_todo}
 }
 
+func (tuc *TodoUseCase[repoType]) GetAllTodo(req *grpc_connection.GetALLRequest) *grpc_connection.TodoListResponse {
+
+	todos, err := tuc.repository.GetAll()
+	if err != nil {
+		return &grpc_connection.CreateTodoResponse{}
+	}
+
+}
+
 func EntityToGrpcMessage(grpc_todo entity.Todo) *grpc_connection.Todo {
 
 }

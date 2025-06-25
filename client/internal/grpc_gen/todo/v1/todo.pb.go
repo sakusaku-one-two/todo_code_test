@@ -168,27 +168,28 @@ func (x *Todo) GetIsActivate() bool {
 	return false
 }
 
-type TodoList struct {
+type TodoListResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Result        []*Todo                `protobuf:"bytes,1,rep,name=Result,proto3" json:"Result,omitempty"`
+	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TodoList) Reset() {
-	*x = TodoList{}
+func (x *TodoListResponse) Reset() {
+	*x = TodoListResponse{}
 	mi := &file_todo_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TodoList) String() string {
+func (x *TodoListResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TodoList) ProtoMessage() {}
+func (*TodoListResponse) ProtoMessage() {}
 
-func (x *TodoList) ProtoReflect() protoreflect.Message {
+func (x *TodoListResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_todo_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -200,21 +201,29 @@ func (x *TodoList) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TodoList.ProtoReflect.Descriptor instead.
-func (*TodoList) Descriptor() ([]byte, []int) {
+// Deprecated: Use TodoListResponse.ProtoReflect.Descriptor instead.
+func (*TodoListResponse) Descriptor() ([]byte, []int) {
 	return file_todo_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TodoList) GetResult() []*Todo {
+func (x *TodoListResponse) GetResult() []*Todo {
 	if x != nil {
 		return x.Result
 	}
 	return nil
 }
 
+func (x *TodoListResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
 type GetALLRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Request       string                 `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
+	IsSort        bool                   `protobuf:"varint,2,opt,name=is_sort,json=isSort,proto3" json:"is_sort,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -254,6 +263,13 @@ func (x *GetALLRequest) GetRequest() string {
 		return x.Request
 	}
 	return ""
+}
+
+func (x *GetALLRequest) GetIsSort() bool {
+	if x != nil {
+		return x.IsSort
+	}
+	return false
 }
 
 type SearchRequest struct {
@@ -303,6 +319,7 @@ func (x *SearchRequest) GetQuery() string {
 type TodoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Result        *Todo                  `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -342,6 +359,13 @@ func (x *TodoResponse) GetResult() *Todo {
 		return x.Result
 	}
 	return nil
+}
+
+func (x *TodoResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
 }
 
 type CreateTodoRequest struct {
@@ -547,15 +571,18 @@ const file_todo_proto_rawDesc = "" +
 	"\x06status\x18\a \x01(\x0e2\x15.proto.todo.v1.StatusR\x06status\x12\x1f\n" +
 	"\vis_activate\x18\b \x01(\bR\n" +
 	"isActivateB\x05\n" +
-	"\x03_id\"7\n" +
-	"\bTodoList\x12+\n" +
-	"\x06Result\x18\x01 \x03(\v2\x13.proto.todo.v1.TodoR\x06Result\")\n" +
+	"\x03_id\"U\n" +
+	"\x10TodoListResponse\x12+\n" +
+	"\x06Result\x18\x01 \x03(\v2\x13.proto.todo.v1.TodoR\x06Result\x12\x14\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\"B\n" +
 	"\rGetALLRequest\x12\x18\n" +
-	"\arequest\x18\x01 \x01(\tR\arequest\"%\n" +
+	"\arequest\x18\x01 \x01(\tR\arequest\x12\x17\n" +
+	"\ais_sort\x18\x02 \x01(\bR\x06isSort\"%\n" +
 	"\rSearchRequest\x12\x14\n" +
-	"\x05query\x18\x01 \x01(\tR\x05query\";\n" +
+	"\x05query\x18\x01 \x01(\tR\x05query\"Q\n" +
 	"\fTodoResponse\x12+\n" +
-	"\x06result\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\x06result\"K\n" +
+	"\x06result\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\x06result\x12\x14\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\"K\n" +
 	"\x11CreateTodoRequest\x126\n" +
 	"\frequest_todo\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\vrequestTodo\"d\n" +
 	"\x12CreateTodoResponse\x12\x16\n" +
@@ -569,13 +596,13 @@ const file_todo_proto_rawDesc = "" +
 	"\x06Status\x12\x0e\n" +
 	"\n" +
 	"INCOMPLETE\x10\x00\x12\f\n" +
-	"\bCOMPLETE\x10\x022\xf2\x01\n" +
+	"\bCOMPLETE\x10\x022\x82\x02\n" +
 	"\vTodoService\x12S\n" +
 	"\n" +
-	"CreateTodo\x12 .proto.todo.v1.CreateTodoRequest\x1a!.proto.todo.v1.CreateTodoResponse\"\x00\x12E\n" +
+	"CreateTodo\x12 .proto.todo.v1.CreateTodoRequest\x1a!.proto.todo.v1.CreateTodoResponse\"\x00\x12M\n" +
 	"\n" +
-	"GetAllTodo\x12\x1c.proto.todo.v1.GetALLRequest\x1a\x17.proto.todo.v1.TodoList\"\x00\x12G\n" +
-	"\bFindTodo\x12\x1c.proto.todo.v1.SearchRequest\x1a\x17.proto.todo.v1.TodoList\"\x00(\x010\x01B'Z%api/internal/grpc_gen/todo/v1;todo_v1b\x06proto3"
+	"GetAllTodo\x12\x1c.proto.todo.v1.GetALLRequest\x1a\x1f.proto.todo.v1.TodoListResponse\"\x00\x12O\n" +
+	"\bFindTodo\x12\x1c.proto.todo.v1.SearchRequest\x1a\x1f.proto.todo.v1.TodoListResponse\"\x00(\x010\x01B'Z%api/internal/grpc_gen/todo/v1;todo_v1b\x06proto3"
 
 var (
 	file_todo_proto_rawDescOnce sync.Once
@@ -594,7 +621,7 @@ var file_todo_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_todo_proto_goTypes = []any{
 	(Status)(0),                   // 0: proto.todo.v1.Status
 	(*Todo)(nil),                  // 1: proto.todo.v1.Todo
-	(*TodoList)(nil),              // 2: proto.todo.v1.TodoList
+	(*TodoListResponse)(nil),      // 2: proto.todo.v1.TodoListResponse
 	(*GetALLRequest)(nil),         // 3: proto.todo.v1.GetALLRequest
 	(*SearchRequest)(nil),         // 4: proto.todo.v1.SearchRequest
 	(*TodoResponse)(nil),          // 5: proto.todo.v1.TodoResponse
@@ -609,7 +636,7 @@ var file_todo_proto_depIdxs = []int32{
 	10, // 1: proto.todo.v1.Todo.created_at:type_name -> google.protobuf.Timestamp
 	10, // 2: proto.todo.v1.Todo.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 3: proto.todo.v1.Todo.status:type_name -> proto.todo.v1.Status
-	1,  // 4: proto.todo.v1.TodoList.Result:type_name -> proto.todo.v1.Todo
+	1,  // 4: proto.todo.v1.TodoListResponse.Result:type_name -> proto.todo.v1.Todo
 	1,  // 5: proto.todo.v1.TodoResponse.result:type_name -> proto.todo.v1.Todo
 	1,  // 6: proto.todo.v1.CreateTodoRequest.request_todo:type_name -> proto.todo.v1.Todo
 	1,  // 7: proto.todo.v1.CreateTodoResponse.created_todo:type_name -> proto.todo.v1.Todo
@@ -618,8 +645,8 @@ var file_todo_proto_depIdxs = []int32{
 	3,  // 10: proto.todo.v1.TodoService.GetAllTodo:input_type -> proto.todo.v1.GetALLRequest
 	4,  // 11: proto.todo.v1.TodoService.FindTodo:input_type -> proto.todo.v1.SearchRequest
 	7,  // 12: proto.todo.v1.TodoService.CreateTodo:output_type -> proto.todo.v1.CreateTodoResponse
-	2,  // 13: proto.todo.v1.TodoService.GetAllTodo:output_type -> proto.todo.v1.TodoList
-	2,  // 14: proto.todo.v1.TodoService.FindTodo:output_type -> proto.todo.v1.TodoList
+	2,  // 13: proto.todo.v1.TodoService.GetAllTodo:output_type -> proto.todo.v1.TodoListResponse
+	2,  // 14: proto.todo.v1.TodoService.FindTodo:output_type -> proto.todo.v1.TodoListResponse
 	12, // [12:15] is the sub-list for method output_type
 	9,  // [9:12] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name

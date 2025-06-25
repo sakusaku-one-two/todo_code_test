@@ -26,12 +26,15 @@ message Todo {
     bool is_activate = 8;
 }
 
-message TodoList {
+message TodoListResponse {
     repeated Todo Result = 1;
+    string error = 2;
+
 }
 
 message GetALLRequest {
     string request = 1;
+    bool is_sort = 2;
 }
 
 
@@ -42,6 +45,7 @@ message SearchRequest {
 
 message TodoResponse {
     Todo result = 1;
+    string error = 2;
 }
 
 message CreateTodoRequest{
@@ -66,7 +70,7 @@ message NotifyStreamResponse {
 
 service TodoService {
     rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse){};
-    rpc GetAllTodo(GetALLRequest) returns(TodoList){};
-    rpc FindTodo(stream SearchRequest) returns(stream TodoList){};
+    rpc GetAllTodo(GetALLRequest) returns(TodoListResponse){};
+    rpc FindTodo(stream SearchRequest) returns(stream TodoListResponse){};
 }
 
