@@ -2,8 +2,7 @@ package main
 
 import (
 	hadler "api/internal/handler"
-	server_config "api/internal/io_infra/config"
-	"fmt"
+	server_config "api/internal/io_infra/config/server_config"
 	"net/http"
 
 	"golang.org/x/net/http2"
@@ -15,7 +14,7 @@ func main() {
 	mux := http.NewServeMux()
 	hadler.SetUpHandler(mux)
 	http.ListenAndServe(
-		fmt.Printf("%s:%s", server_config.SERVER_HOST, server_config.SERVER_PORT),
+		server_config.GetServerAddressAndPort(),
 		h2c.NewHandler(mux, &http2.Server{}),
 	)
 

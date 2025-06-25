@@ -16,7 +16,7 @@ func main() {
 	defer db.Close()
 	driver, _ := mysql.WithInstance(db, &mysql.Config{})
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://../../internal/io_infra/database/migration",
+		"file://../../../internal/io_infra/database/migration",
 		"mysql",
 		driver,
 	)

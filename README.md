@@ -17,7 +17,7 @@ migrate -path ./migration -database "mysql://mysql_user:todo_database_password@t
 
  grpcurl \
     -protoset <(buf build -o -) -plaintext \
-    -d '{"request": "Jane"}' \
+    -d '{"request": "Jane"}'
     localhost:8080 todo.v1.TodoService/GetAll
 
      grpcurl     -protoset <(buf build -o -) -plaintext     -d '{"query": "self create todo"}'     localhost:8080 proto.todo.v1.TodoService/FindTodo

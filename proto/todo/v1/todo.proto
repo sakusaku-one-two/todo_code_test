@@ -45,12 +45,13 @@ message TodoResponse {
 }
 
 message CreateTodoRequest{
-    Todo new_todo = 1;
+    Todo request_todo = 1;
     
 }
 
 message CreateTodoResponse {
     bool result = 1;
+    Todo created_todo = 2;
 
 }
 

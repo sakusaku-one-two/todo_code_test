@@ -346,7 +346,7 @@ func (x *TodoResponse) GetResult() *Todo {
 
 type CreateTodoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	NewTodo       *Todo                  `protobuf:"bytes,1,opt,name=new_todo,json=newTodo,proto3" json:"new_todo,omitempty"`
+	RequestTodo   *Todo                  `protobuf:"bytes,1,opt,name=request_todo,json=requestTodo,proto3" json:"request_todo,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -381,9 +381,9 @@ func (*CreateTodoRequest) Descriptor() ([]byte, []int) {
 	return file_todo_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *CreateTodoRequest) GetNewTodo() *Todo {
+func (x *CreateTodoRequest) GetRequestTodo() *Todo {
 	if x != nil {
-		return x.NewTodo
+		return x.RequestTodo
 	}
 	return nil
 }
@@ -391,6 +391,7 @@ func (x *CreateTodoRequest) GetNewTodo() *Todo {
 type CreateTodoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Result        bool                   `protobuf:"varint,1,opt,name=result,proto3" json:"result,omitempty"`
+	CreatedTodo   *Todo                  `protobuf:"bytes,2,opt,name=created_todo,json=createdTodo,proto3" json:"created_todo,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -430,6 +431,13 @@ func (x *CreateTodoResponse) GetResult() bool {
 		return x.Result
 	}
 	return false
+}
+
+func (x *CreateTodoResponse) GetCreatedTodo() *Todo {
+	if x != nil {
+		return x.CreatedTodo
+	}
+	return nil
 }
 
 type NotifyStreamRequest struct {
@@ -547,11 +555,12 @@ const file_todo_proto_rawDesc = "" +
 	"\rSearchRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\";\n" +
 	"\fTodoResponse\x12+\n" +
-	"\x06result\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\x06result\"C\n" +
-	"\x11CreateTodoRequest\x12.\n" +
-	"\bnew_todo\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\anewTodo\",\n" +
+	"\x06result\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\x06result\"K\n" +
+	"\x11CreateTodoRequest\x126\n" +
+	"\frequest_todo\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\vrequestTodo\"d\n" +
 	"\x12CreateTodoResponse\x12\x16\n" +
-	"\x06result\x18\x01 \x01(\bR\x06result\"-\n" +
+	"\x06result\x18\x01 \x01(\bR\x06result\x126\n" +
+	"\fcreated_todo\x18\x02 \x01(\v2\x13.proto.todo.v1.TodoR\vcreatedTodo\"-\n" +
 	"\x13NotifyStreamRequest\x12\x16\n" +
 	"\x06desier\x18\x01 \x01(\bR\x06desier\"L\n" +
 	"\x14NotifyStreamResponse\x124\n" +
@@ -602,19 +611,20 @@ var file_todo_proto_depIdxs = []int32{
 	0,  // 3: proto.todo.v1.Todo.status:type_name -> proto.todo.v1.Status
 	1,  // 4: proto.todo.v1.TodoList.Result:type_name -> proto.todo.v1.Todo
 	1,  // 5: proto.todo.v1.TodoResponse.result:type_name -> proto.todo.v1.Todo
-	1,  // 6: proto.todo.v1.CreateTodoRequest.new_todo:type_name -> proto.todo.v1.Todo
-	1,  // 7: proto.todo.v1.NotifyStreamResponse.notify_todo:type_name -> proto.todo.v1.Todo
-	6,  // 8: proto.todo.v1.TodoService.CreateTodo:input_type -> proto.todo.v1.CreateTodoRequest
-	3,  // 9: proto.todo.v1.TodoService.GetAllTodo:input_type -> proto.todo.v1.GetALLRequest
-	4,  // 10: proto.todo.v1.TodoService.FindTodo:input_type -> proto.todo.v1.SearchRequest
-	7,  // 11: proto.todo.v1.TodoService.CreateTodo:output_type -> proto.todo.v1.CreateTodoResponse
-	2,  // 12: proto.todo.v1.TodoService.GetAllTodo:output_type -> proto.todo.v1.TodoList
-	2,  // 13: proto.todo.v1.TodoService.FindTodo:output_type -> proto.todo.v1.TodoList
-	11, // [11:14] is the sub-list for method output_type
-	8,  // [8:11] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	1,  // 6: proto.todo.v1.CreateTodoRequest.request_todo:type_name -> proto.todo.v1.Todo
+	1,  // 7: proto.todo.v1.CreateTodoResponse.created_todo:type_name -> proto.todo.v1.Todo
+	1,  // 8: proto.todo.v1.NotifyStreamResponse.notify_todo:type_name -> proto.todo.v1.Todo
+	6,  // 9: proto.todo.v1.TodoService.CreateTodo:input_type -> proto.todo.v1.CreateTodoRequest
+	3,  // 10: proto.todo.v1.TodoService.GetAllTodo:input_type -> proto.todo.v1.GetALLRequest
+	4,  // 11: proto.todo.v1.TodoService.FindTodo:input_type -> proto.todo.v1.SearchRequest
+	7,  // 12: proto.todo.v1.TodoService.CreateTodo:output_type -> proto.todo.v1.CreateTodoResponse
+	2,  // 13: proto.todo.v1.TodoService.GetAllTodo:output_type -> proto.todo.v1.TodoList
+	2,  // 14: proto.todo.v1.TodoService.FindTodo:output_type -> proto.todo.v1.TodoList
+	12, // [12:15] is the sub-list for method output_type
+	9,  // [9:12] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_todo_proto_init() }

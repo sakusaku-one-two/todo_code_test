@@ -26,9 +26,9 @@ func main() {
 		return
 	}
 
-	no, is_darty, _ := m.Version()
+	no, is_dirty, _ := m.Version()
 
-	if is_darty {
+	if is_dirty {
 		m.Force(int(no))
 	}
 

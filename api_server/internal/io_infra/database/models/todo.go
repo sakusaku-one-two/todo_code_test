@@ -30,6 +30,7 @@ type Todo struct {
 	LimitTime   time.Time `boil:"limit_time" json:"limit_time" toml:"limit_time" yaml:"limit_time"`
 	CreatedAt   time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	UpdateAt    null.Time `boil:"update_at" json:"update_at,omitempty" toml:"update_at" yaml:"update_at,omitempty"`
+	StatusNo    int       `boil:"status_no" json:"status_no" toml:"status_no" yaml:"status_no"`
 	IsActivate  int8      `boil:"is_activate" json:"is_activate" toml:"is_activate" yaml:"is_activate"`
 
 	R *todoR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -43,6 +44,7 @@ var TodoColumns = struct {
 	LimitTime   string
 	CreatedAt   string
 	UpdateAt    string
+	StatusNo    string
 	IsActivate  string
 }{
 	ID:          "id",
@@ -51,6 +53,7 @@ var TodoColumns = struct {
 	LimitTime:   "limit_time",
 	CreatedAt:   "created_at",
 	UpdateAt:    "update_at",
+	StatusNo:    "status_no",
 	IsActivate:  "is_activate",
 }
 
@@ -61,6 +64,7 @@ var TodoTableColumns = struct {
 	LimitTime   string
 	CreatedAt   string
 	UpdateAt    string
+	StatusNo    string
 	IsActivate  string
 }{
 	ID:          "todo.id",
@@ -69,6 +73,7 @@ var TodoTableColumns = struct {
 	LimitTime:   "todo.limit_time",
 	CreatedAt:   "todo.created_at",
 	UpdateAt:    "todo.update_at",
+	StatusNo:    "todo.status_no",
 	IsActivate:  "todo.is_activate",
 }
 
@@ -174,6 +179,7 @@ var TodoWhere = struct {
 	LimitTime   whereHelpertime_Time
 	CreatedAt   whereHelpertime_Time
 	UpdateAt    whereHelpernull_Time
+	StatusNo    whereHelperint
 	IsActivate  whereHelperint8
 }{
 	ID:          whereHelperint{field: "`todo`.`id`"},
@@ -182,6 +188,7 @@ var TodoWhere = struct {
 	LimitTime:   whereHelpertime_Time{field: "`todo`.`limit_time`"},
 	CreatedAt:   whereHelpertime_Time{field: "`todo`.`created_at`"},
 	UpdateAt:    whereHelpernull_Time{field: "`todo`.`update_at`"},
+	StatusNo:    whereHelperint{field: "`todo`.`status_no`"},
 	IsActivate:  whereHelperint8{field: "`todo`.`is_activate`"},
 }
 
@@ -202,8 +209,8 @@ func (*todoR) NewStruct() *todoR {
 type todoL struct{}
 
 var (
-	todoAllColumns            = []string{"id", "title", "description", "limit_time", "created_at", "update_at", "is_activate"}
-	todoColumnsWithoutDefault = []string{"title", "description", "limit_time"}
+	todoAllColumns            = []string{"id", "title", "description", "limit_time", "created_at", "update_at", "status_no", "is_activate"}
+	todoColumnsWithoutDefault = []string{"title", "description", "limit_time", "status_no"}
 	todoColumnsWithDefault    = []string{"id", "created_at", "update_at", "is_activate"}
 	todoPrimaryKeyColumns     = []string{"id"}
 	todoGeneratedColumns      = []string{}

@@ -7,6 +7,6 @@ import (
 )
 
 func SetUpHandler(mux *http.ServeMux) {
-	path, handler := connect.NewTodoServiceHandler(grpc_service.TodoServer{})
+	path, handler := connect.NewTodoServiceHandler(&grpc_service.TodoServer{})
 	mux.Handle(path, handler)
 }

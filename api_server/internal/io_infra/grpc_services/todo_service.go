@@ -12,12 +12,15 @@ import (
 type TodoServer struct {
 }
 
+func NewTodoServer()
+
 func (ts TodoServer) CreateTodo(ctx context.Context, req *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error) {
 
-	todo := req.Msg.NewTodo
+	todo := req.Msg.RequestTodo
 
 	res := connect.NewResponse(&v1.CreateTodoResponse{
-		Result: true,
+		Result:      true,
+		CreatedTodo: todo,
 	})
 
 	fmt.Println(todo)

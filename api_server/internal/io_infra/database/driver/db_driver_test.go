@@ -39,7 +39,7 @@ func Test_connection_test(t *testing.T) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println(todo)
+	fmt.Println("fetch todo => ", todo)
 
 	var todos []*m.Todo
 
@@ -55,6 +55,7 @@ func Test_connection_test(t *testing.T) {
 		Title:       "sample_title_99",
 		Description: "sample_description_99",
 		LimitTime:   time.Now(),
+		StatusNo:    4,
 	}
 
 	err = new_todo.Insert(ctx, conn, boil.Infer())
