@@ -67,10 +67,20 @@ message NotifyStreamResponse {
     Todo notify_todo = 1;
 }
 
+message DeleteTodoRequest {
+    int32 id =1;
+}
+
+message DeleteTodoResponse {
+    bool result = 1;
+    repeated Todo AtherTodo = 2;
+}
+
 
 service TodoService {
     rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse){};
     rpc GetAllTodo(GetALLRequest) returns(TodoListResponse){};
     rpc FindTodo(stream SearchRequest) returns(stream TodoListResponse){};
+    rpc DeleteTodo(DeleteTodoRequest) returns(DeleteTodoResponse){};
 }
 
