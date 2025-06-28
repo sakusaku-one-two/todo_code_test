@@ -24,5 +24,3 @@ WORKDIR /app/bin
 COPY --from=go_build_image /execute_go /app/bin/execute_go
 
 
-
-CMD ["go run ./cmd/migrate/up/main.go"]

@@ -43,7 +43,7 @@ func NewTodoRepostory() (*TodoRepository, error) { // シングルトンを返�
 	return todo_repository, nil
 }
 
-func (tr *TodoRepository) Create(insert_target entity.Todo) (bool, error) {
+func (tr *TodoRepository) Create(insert_target entity.Todo) (entity.Todo, error) {
 
 	todo := models.Todo{
 		Title:       insert_target.Title.GetValue(),
@@ -51,17 +51,13 @@ func (tr *TodoRepository) Create(insert_target entity.Todo) (bool, error) {
 		LimitTime:   insert_target.Limit.GetValue(),
 		StatusNo:    0,
 	}
+
 	ctx := context.Background()
 	if err := todo.Insert(ctx, tr.driver, boil.Infer()); err != nil {
-		return false, err
+		return tr.model_to_entity(todo), err
 	}
-
-	return true, nil
+	return tr.model_to_entity(todo), nil
 }
-
-// func (tr *TodoRepository) Read(id values.TaskId) (entity.Todo, error) {
-
-// }
 
 func (tr *TodoRepository) GetAll() ([]entity.Todo, error) {
 	ctx := context.Background()
@@ -90,7 +86,7 @@ func (tr *TodoRepository) FindAll(query string) ([]entity.Todo, error) {
 	if err := models.NewQuery(
 		qm.From(models.TableNames.Todo),
 		qm.Where("title Like '%?%'", query),
-	).Bind(ctx, tr.driver, todos); err != nil {
+	).Bind(ctx, tr.driver, &todos); err != nil {
 		return nil, err
 	}
 
@@ -100,6 +96,41 @@ func (tr *TodoRepository) FindAll(query string) ([]entity.Todo, error) {
 	}
 
 	return entity_todos, nil
+}
+
+func (tr *TodoRepository) Update(todo entity.Todo) (entity.Todo, error)
+
+func (tr *TodoRepository) Delete(id values.TaskId[int]) (bool, error) {
+
+	ctx := context.Background()
+	new_tx, err := tr.driver.BeginTx(ctx, nil)
+
+	if err != nil {
+		slog.Log(ctx, slog.LevelError, err.Error())
+		return false, err
+	}
+
+	defer func() {
+		if new_tx == nil {
+			return
+		}
+
+		if err != nil {
+			new_tx.Rollback()
+		} else {
+			new_tx.Commit()
+		}
+	}()
+
+	err = models.NewQuery(
+		qm.From(models.TableNames.Todo),
+		qm.Where("id = ?", id.GetValue()),
+	).Bind(ctx, new_tx, nil)
+
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (tr *TodoRepository) model_to_entity(todo models.Todo) entity.Todo {
