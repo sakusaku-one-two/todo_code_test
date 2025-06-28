@@ -30,7 +30,7 @@ func Test_todo_use_case(t *testing.T) {
 	todo_use_case := NewTodoUseCase(todo_repo)
 
 	create_todo_res := todo_use_case.CreateTodo(&grpc_connection.CreateTodoRequest{
-		RequestTodo: generate_grpc_todo(1, "new_todo", "description_new_todo", time.Now().Add(100*time.Second)),
+		RequestTodo: generate_grpc_todo(1, "new_todo_sample", "description_new_todo", time.Now().Add(100*time.Minute)),
 	})
 
 	if create_todo_res.Error != "" {
