@@ -99,10 +99,21 @@ func (tr *TodoRepository) FindAll(query string) ([]entity.Todo, error) {
 }
 
 func (tr *TodoRepository) Update(todo entity.Todo) (entity.Todo, error) {
-	// model_todo := models.Todo{
-	// 	ID: todo.Id.GetValue(),
-	// }
-	return todo, nil
+	model_todo := models.Todo{
+		ID:          todo.Id.GetValue(),
+		Title:       todo.Title.GetValue(),
+		Description: todo.Description.GetValue(),
+		StatusNo:    values.GetTodoStatusNumber(todo.Status),
+	}
+
+	ctx := context.Background()
+	_, err := model_todo.Update(ctx, tr.driver, boil.Infer())
+	if err != nil {
+		return todo, err
+	}
+
+	entity_todo := tr.model_to_entity(model_todo)
+	return entity_todo, nil
 }
 
 func (tr *TodoRepository) Delete(id values.TaskId[int]) (bool, error) {
