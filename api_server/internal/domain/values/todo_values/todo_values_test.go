@@ -35,3 +35,14 @@ func Test_Status(t *testing.T) {
 	}
 
 }
+
+func Test_value(t *testing.T) {
+	new_val, err := NewTaskId[int](1)
+	if err != nil {
+		t.Fatal()
+		return
+	}
+
+	fmt.Println(new_val)
+
+}

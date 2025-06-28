@@ -98,7 +98,12 @@ func (tr *TodoRepository) FindAll(query string) ([]entity.Todo, error) {
 	return entity_todos, nil
 }
 
-func (tr *TodoRepository) Update(todo entity.Todo) (entity.Todo, error)
+func (tr *TodoRepository) Update(todo entity.Todo) (entity.Todo, error) {
+	// model_todo := models.Todo{
+	// 	ID: todo.Id.GetValue(),
+	// }
+	return todo, nil
+}
 
 func (tr *TodoRepository) Delete(id values.TaskId[int]) (bool, error) {
 

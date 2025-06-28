@@ -36,11 +36,12 @@ func (tuc *TodoUseCase[repoType]) CreateTodo(req *grpc_connection.CreateTodoRequ
 		return &grpc_connection.CreateTodoResponse{Error: ""}
 	}
 
-	if created_todo, ok := tuc.repository.Create(*entity_todo); ok {
-		return &grpc_connection.CreateTodoResponse{Result: ok, CreatedTodo: EntityToGrpcMessage(created_todo), Error: ""}
+	created_todo, err := tuc.repository.Create(*entity_todo)
+	if err != nil {
+		return &grpc_connection.CreateTodoResponse{Result: false, CreatedTodo: EntityToGrpcMessage(created_todo), Error: err.Error()}
 	}
 
-	return &grpc_connection.CreateTodoResponse{Result: false, CreatedTodo: request_todo, Error: "申し訳ありません。作成に失敗いたしました。"}
+	return &grpc_connection.CreateTodoResponse{Result: true, CreatedTodo: EntityToGrpcMessage(created_todo), Error: ""}
 }
 
 func (tuc *TodoUseCase[repoType]) GetAllTodo(req *grpc_connection.GetALLRequest) *grpc_connection.TodoListResponse {
@@ -61,7 +62,7 @@ func (tuc *TodoUseCase[repoType]) DeleteTodo(req *grpc_connection.DeleteTodoRequ
 	id := int(req.Id)
 	task_id, _ := values.NewTaskId(id)
 
-	if ok, err := tuc.repository.Delete(task_id); ok == false {
+	if ok, err := tuc.repository.Delete(task_id); !ok {
 		return &grpc_connection.DeleteTodoResponse{
 			Result: false,
 			Error:  err.Error(),

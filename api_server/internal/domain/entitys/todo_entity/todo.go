@@ -6,7 +6,7 @@ import (
 )
 
 type Todo struct {
-	Id          todo.TaskId
+	Id          todo.TaskId[int]
 	Title       todo.Title
 	Description todo.Description
 	Limit       todo.Limit
