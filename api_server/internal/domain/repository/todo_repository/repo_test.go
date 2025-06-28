@@ -14,11 +14,6 @@ func Test_repo(t *testing.T) {
 		return
 	}
 
-	// all_todo, err := repo.GetAll()
-	// if err != nil {
-	// 	return
-	// }
-
 	title, _ := values.NewTitle("sakusaku")
 	desc, _ := values.NewDescription("sakuksau desc")
 	limit, _ := values.NewLimit(time.Now())

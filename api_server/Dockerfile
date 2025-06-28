@@ -17,10 +17,10 @@ RUN go build -v -o /execute_go ./cmd/api/main.go
 
 # DEPLOY
 
-FROM golang:1.24
+# FROM golang:1.24
 
-WORKDIR /app/bin
+# WORKDIR /app/bin
 
-COPY --from=go_build_image /execute_go /app/bin/execute_go
+# COPY --from=go_build_image /execute_go /app/bin/execute_go
 
 

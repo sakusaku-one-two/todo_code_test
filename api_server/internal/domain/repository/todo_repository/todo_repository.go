@@ -66,7 +66,7 @@ func (tr *TodoRepository) GetAll() ([]entity.Todo, error) {
 
 	if err := models.NewQuery(
 		qm.From(models.TableNames.Todo),
-		qm.Where("is_activate = true"), // 論理削除されてないレコードの抽出
+		qm.Where("is_activate = 1"), // 論理削除されてないレコードの抽出
 	).Bind(ctx, tr.driver, &todos); err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (tr *TodoRepository) Update(todo entity.Todo) (entity.Todo, error) {
 func (tr *TodoRepository) Delete(id values.TaskId[int]) (bool, error) {
 
 	ctx := context.Background()
-	new_tx, err := tr.driver.BeginTx(ctx, nil)
+	new_tx, err := tr.driver.BeginTx(ctx, &sql.TxOptions{})
 
 	if err != nil {
 		slog.Log(ctx, slog.LevelError, err.Error())
@@ -138,10 +138,9 @@ func (tr *TodoRepository) Delete(id values.TaskId[int]) (bool, error) {
 		}
 	}()
 
-	err = models.NewQuery(
-		qm.From(models.TableNames.Todo),
-		qm.Where("id = ?", id.GetValue()),
-	).Bind(ctx, new_tx, nil)
+	todo := models.Todo{ID: id.GetValue()}
+	todo.IsActivate = 0
+	_, err = todo.Update(ctx, new_tx, boil.Whitelist(models.TodoColumns.IsActivate))
 
 	if err != nil {
 		return false, err

@@ -60,3 +60,7 @@ func Test_todo_getall(t *testing.T) {
 	}
 
 }
+
+// func Test_todo_findall(t *testing.T) {
+// 	res := todo_use_case.
+// }

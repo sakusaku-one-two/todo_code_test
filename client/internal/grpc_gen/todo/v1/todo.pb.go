@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: todo.proto
 
-package todo_v1
+package todov1
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -416,6 +416,7 @@ type CreateTodoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Result        bool                   `protobuf:"varint,1,opt,name=result,proto3" json:"result,omitempty"`
 	CreatedTodo   *Todo                  `protobuf:"bytes,2,opt,name=created_todo,json=createdTodo,proto3" json:"created_todo,omitempty"`
+	Error         string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -462,6 +463,13 @@ func (x *CreateTodoResponse) GetCreatedTodo() *Todo {
 		return x.CreatedTodo
 	}
 	return nil
+}
+
+func (x *CreateTodoResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
 }
 
 type NotifyStreamRequest struct {
@@ -511,6 +519,7 @@ func (x *NotifyStreamRequest) GetDesier() bool {
 type NotifyStreamResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	NotifyTodo    *Todo                  `protobuf:"bytes,1,opt,name=notify_todo,json=notifyTodo,proto3" json:"notify_todo,omitempty"`
+	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -550,6 +559,13 @@ func (x *NotifyStreamResponse) GetNotifyTodo() *Todo {
 		return x.NotifyTodo
 	}
 	return nil
+}
+
+func (x *NotifyStreamResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
 }
 
 type DeleteTodoRequest struct {
@@ -600,6 +616,7 @@ type DeleteTodoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Result        bool                   `protobuf:"varint,1,opt,name=result,proto3" json:"result,omitempty"`
 	AtherTodo     []*Todo                `protobuf:"bytes,2,rep,name=AtherTodo,proto3" json:"AtherTodo,omitempty"`
+	Error         string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -648,6 +665,13 @@ func (x *DeleteTodoResponse) GetAtherTodo() []*Todo {
 	return nil
 }
 
+func (x *DeleteTodoResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
 var File_todo_proto protoreflect.FileDescriptor
 
 const file_todo_proto_rawDesc = "" +
@@ -680,20 +704,23 @@ const file_todo_proto_rawDesc = "" +
 	"\x06result\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\x06result\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\"K\n" +
 	"\x11CreateTodoRequest\x126\n" +
-	"\frequest_todo\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\vrequestTodo\"d\n" +
+	"\frequest_todo\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\vrequestTodo\"z\n" +
 	"\x12CreateTodoResponse\x12\x16\n" +
 	"\x06result\x18\x01 \x01(\bR\x06result\x126\n" +
-	"\fcreated_todo\x18\x02 \x01(\v2\x13.proto.todo.v1.TodoR\vcreatedTodo\"-\n" +
+	"\fcreated_todo\x18\x02 \x01(\v2\x13.proto.todo.v1.TodoR\vcreatedTodo\x12\x14\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\"-\n" +
 	"\x13NotifyStreamRequest\x12\x16\n" +
-	"\x06desier\x18\x01 \x01(\bR\x06desier\"L\n" +
+	"\x06desier\x18\x01 \x01(\bR\x06desier\"b\n" +
 	"\x14NotifyStreamResponse\x124\n" +
 	"\vnotify_todo\x18\x01 \x01(\v2\x13.proto.todo.v1.TodoR\n" +
-	"notifyTodo\"#\n" +
+	"notifyTodo\x12\x14\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\"#\n" +
 	"\x11DeleteTodoRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x05R\x02id\"_\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\"u\n" +
 	"\x12DeleteTodoResponse\x12\x16\n" +
 	"\x06result\x18\x01 \x01(\bR\x06result\x121\n" +
-	"\tAtherTodo\x18\x02 \x03(\v2\x13.proto.todo.v1.TodoR\tAtherTodo*&\n" +
+	"\tAtherTodo\x18\x02 \x03(\v2\x13.proto.todo.v1.TodoR\tAtherTodo\x12\x14\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error*&\n" +
 	"\x06Status\x12\x0e\n" +
 	"\n" +
 	"INCOMPLETE\x10\x00\x12\f\n" +
@@ -705,7 +732,8 @@ const file_todo_proto_rawDesc = "" +
 	"GetAllTodo\x12\x1c.proto.todo.v1.GetALLRequest\x1a\x1f.proto.todo.v1.TodoListResponse\"\x00\x12O\n" +
 	"\bFindTodo\x12\x1c.proto.todo.v1.SearchRequest\x1a\x1f.proto.todo.v1.TodoListResponse\"\x00(\x010\x01\x12S\n" +
 	"\n" +
-	"DeleteTodo\x12 .proto.todo.v1.DeleteTodoRequest\x1a!.proto.todo.v1.DeleteTodoResponse\"\x00B'Z%api/internal/grpc_gen/todo/v1;todo_v1b\x06proto3"
+	"DeleteTodo\x12 .proto.todo.v1.DeleteTodoRequest\x1a!.proto.todo.v1.DeleteTodoResponse\"\x00B\x9a\x01\n" +
+	"\x11com.proto.todo.v1B\tTodoProtoP\x01Z$api/internal/grpc_gen/todo/v1;todov1\xa2\x02\x03PTX\xaa\x02\rProto.Todo.V1\xca\x02\rProto\\Todo\\V1\xe2\x02\x19Proto\\Todo\\V1\\GPBMetadata\xea\x02\x0fProto::Todo::V1b\x06proto3"
 
 var (
 	file_todo_proto_rawDescOnce sync.Once

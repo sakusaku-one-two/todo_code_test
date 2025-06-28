@@ -2,7 +2,7 @@
 //
 // Source: todo.proto
 
-package todo_v1connect
+package todov1connect
 
 import (
 	v1 "api/internal/grpc_gen/todo/v1"

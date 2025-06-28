@@ -1,76 +1,87 @@
 package grpc_services
 
 import (
+	repo "api/internal/domain/repository/todo_repository"
+	todo_use_case "api/internal/domain/use_cases/todo_usecase"
 	v1 "api/internal/grpc_gen/todo/v1"
 	"context"
-	"fmt"
-	"time"
+	"log/slog"
+	"sync"
 
 	"connectrpc.com/connect"
 )
 
 type TodoServer struct {
+	todo_use_case *todo_use_case.TodoUseCase[*repo.TodoRepository]
+}
+
+func NewTodoGrpcServer() *TodoServer {
+	todo_repo, err := repo.NewTodoRepostory()
+	if err != nil {
+		panic(err)
+	}
+	return &TodoServer{
+		todo_use_case: todo_use_case.NewTodoUseCase(todo_repo),
+	}
 }
 
 func (ts TodoServer) CreateTodo(ctx context.Context, req *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error) {
 
-	todo := req.Msg.RequestTodo
-
-	res := connect.NewResponse(&v1.CreateTodoResponse{
-		Result:      true,
-		CreatedTodo: todo,
-	})
-
-	fmt.Println(todo)
-	return res, nil
+	response := ts.todo_use_case.CreateTodo(req.Msg)
+	return connect.NewResponse(response), nil
 }
 
 func (ts TodoServer) GetAllTodo(ctx context.Context, req *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error) {
-	todos := []*v1.Todo{}
-	for i := 0; i < 10; i++ {
 
-		temp := &v1.Todo{
-			Title:       "inosaku",
-			Description: "sakusaku",
-		}
-		todos = append(todos, temp)
-	}
-
-	return connect.NewResponse(&v1.TodoListResponse{Result: todos, Error: ""}), nil
+	response := ts.todo_use_case.GetAllTodo(req.Msg)
+	return connect.NewResponse(response), nil
 }
 
 func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1.SearchRequest, v1.TodoListResponse]) error {
 
-	go func() {
+	Request_channel := make(chan *v1.SearchRequest, 100)
+	Response_channel := make(chan *v1.TodoListResponse, 100)
+	var request_err error
+	wg := sync.WaitGroup{}
+	wg.Add(3)
+
+	go func() { //受信専用のイベントループを走らせるゴルーチン
+		defer wg.Done()
 		for {
 			req, err := stream.Receive()
 			if err != nil {
+				slog.Log(ctx, slog.LevelError, err.Error())
+				request_err = err
+				close(Request_channel)
 				return
 			}
-			fmt.Println(req.Query)
+			Request_channel <- req
 		}
 	}()
 
-	Ticker := time.NewTicker(10 * time.Second)
-
-	for {
-		<-Ticker.C
-
-		todos := []*v1.Todo{}
-		for i := 0; i < 10; i++ {
-
-			temp := &v1.Todo{
-				Title:       "inosaku",
-				Description: "sakusaku",
-			}
-			todos = append(todos, temp)
+	go func() { // ユースケースにリクエストを渡してレスポンスを送信専用チャネルに渡すためのゴルーチン
+		defer wg.Done()
+		for req := range Request_channel {
+			res := ts.todo_use_case.FindAll(req)
+			Response_channel <- res
 		}
+		close(Response_channel) //送信専用ゴルーチンのイベントループを終了させるためのclose
+	}()
 
-		stream.Send(&v1.TodoListResponse{Result: todos, Error: ""})
-	}
+	go func() { //送信専用のゴルーチン
+		defer wg.Done()
+		for res := range Response_channel {
+			stream.Send(res)
+		}
+	}()
 
+	wg.Wait()
+
+	return request_err
 }
 
-func (TodoServer) DeleteTodo(ctx context.Context, req *connect.Request[v1.DeleteTodoRequest]) (*connect.Response[v1.DeleteTodoResponse], error) {
-	return nil, nil
+func (ts TodoServer) DeleteTodo(ctx context.Context, req *connect.Request[v1.DeleteTodoRequest]) (*connect.Response[v1.DeleteTodoResponse], error) {
+
+	response := ts.todo_use_case.DeleteTodo(req.Msg)
+	return connect.NewResponse(response), nil
 }

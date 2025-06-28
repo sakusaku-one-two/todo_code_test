@@ -1,6 +1,7 @@
 package main
 
 import (
+	migrate "api/cmd/migrate/up"
 	hadler "api/internal/handler"
 	server_config "api/internal/io_infra/config/server_config"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 )
 
 func main() {
+	migrate.SetUp() //最新のマイグレーションの内容を適用
 	//　実行のエントリーポイント
 	mux := http.NewServeMux()
 	hadler.SetUpHandler(mux)

@@ -1,4 +1,11 @@
 version: v2
+managed:
+  enabled: true
+  override:
+    
+    - file_option: go_package_prefix
+      value: api/internal/grpc_gen/todo/v1
+   
 plugins:
   - local: protoc-gen-go
     out: api_server/internal/grpc_gen/todo/v1 # 出力先

@@ -28,6 +28,10 @@ migrate -path ./migration -database "mysql://mysql_user:todo_database_password@t
     message GetALLRequest {
     string request = 1;
     bool is_sort = 2;
+
+
+    option go_package = "api/internal/grpc_gen/todo/v1;todo_v1";
+
 }
 
 

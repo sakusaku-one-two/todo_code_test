@@ -4,7 +4,6 @@ syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
 
-
 package proto.todo.v1;
 
 option go_package = "api/internal/grpc_gen/todo/v1;todo_v1";
@@ -50,12 +49,14 @@ message TodoResponse {
 
 message CreateTodoRequest{
     Todo request_todo = 1;
+
     
 }
 
 message CreateTodoResponse {
     bool result = 1;
     Todo created_todo = 2;
+    string error = 3;
 
 }
 
@@ -65,6 +66,7 @@ message NotifyStreamRequest {
 
 message NotifyStreamResponse {
     Todo notify_todo = 1;
+    string error = 2;
 }
 
 message DeleteTodoRequest {
@@ -74,6 +76,7 @@ message DeleteTodoRequest {
 message DeleteTodoResponse {
     bool result = 1;
     repeated Todo AtherTodo = 2;
+    string error = 3;
 }
 
 

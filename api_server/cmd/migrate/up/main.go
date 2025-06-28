@@ -1,4 +1,4 @@
-package main
+package up
 
 import (
 	driver_conn "api/internal/io_infra/database/driver"
@@ -11,12 +11,13 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func main() {
+func SetUp() {
+
 	db, _ := driver_conn.NewMySqlDriver()
 	defer db.Close()
 	driver, _ := mysql.WithInstance(db, &mysql.Config{})
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://internal/io_infra/database/migration", //go.sum　go.modがあるディレクトリで　go run cmd/migrate/up/main.go で自動でマイグレーションが走るようにpathを調整しました。
+		"file:///usr/src/app/internal/io_infra/database/migration",
 		"mysql",
 		driver,
 	)
@@ -26,6 +27,12 @@ func main() {
 		return
 	}
 
+	if m == nil {
+		fmt.Println("m is nil")
+		return
+	}
+
+	fmt.Println(m)
 	no, is_dirty, _ := m.Version()
 
 	if is_dirty {
