@@ -37,7 +37,7 @@ func Test_getall(t *testing.T) {
 
 func Test_create(t *testing.T) {
 	todo_server := NewTodoGrpcServer()
-	ctx := context.Background()
+	ctx := t.Context()
 	res, err := todo_server.CreateTodo(ctx, connect.NewRequest(&todov1.CreateTodoRequest{
 		RequestTodo: &todov1.Todo{
 			Title:       "grpce_server_create_test",
@@ -47,12 +47,12 @@ func Test_create(t *testing.T) {
 		},
 	}))
 
-	fmt.Println(res, err)
+	fmt.Println("create =>", res, err)
 }
 
 func Test_delete(t *testing.T) {
 	todo_server := NewTodoGrpcServer()
-	ctx := context.Background()
+	ctx := t.Context()
 	res, err := todo_server.GetAllTodo(ctx, connect.NewRequest(&todov1.GetALLRequest{
 		Request: "",
 		IsSort:  false,

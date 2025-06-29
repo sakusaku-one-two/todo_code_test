@@ -43,7 +43,7 @@ func NewTodoRepostory() (*TodoRepository, error) { // シングルトンを返�
 	return todo_repository, nil
 }
 
-func (tr *TodoRepository) Create(insert_target entity.Todo) (entity.Todo, error) {
+func (tr *TodoRepository) Create(ctx context.Context, insert_target entity.Todo) (entity.Todo, error) {
 
 	todo := models.Todo{
 		Title:       insert_target.Title.GetValue(),
@@ -52,41 +52,31 @@ func (tr *TodoRepository) Create(insert_target entity.Todo) (entity.Todo, error)
 		StatusNo:    0,
 	}
 
-	ctx := context.Background()
 	if err := todo.Insert(ctx, tr.driver, boil.Infer()); err != nil {
 		return tr.model_to_entity(todo), err
 	}
 	return tr.model_to_entity(todo), nil
 }
 
-func (tr *TodoRepository) GetAll() ([]entity.Todo, error) {
-	ctx := context.Background()
-
+func (tr *TodoRepository) GetAll(ctx context.Context) ([]entity.Todo, error) {
 	var todos []*models.Todo
-
 	if err := models.NewQuery(
 		qm.From(models.TableNames.Todo),
 		qm.Where("is_activate = 1"), // 論理削除されてないレコードの抽出
 	).Bind(ctx, tr.driver, &todos); err != nil {
 		return nil, err
 	}
-
 	var entity_todos = []entity.Todo{}
 	for _, todo := range todos {
 		entity_todos = append(entity_todos, tr.model_to_entity(*todo))
 	}
-
 	return entity_todos, nil
-
 }
 
-func (tr *TodoRepository) FindAll(query string) ([]entity.Todo, error) {
+func (tr *TodoRepository) FindAll(ctx context.Context, query string) ([]entity.Todo, error) {
 	var todos []models.Todo
-	ctx := context.Background()
-	if err := models.NewQuery(
-		qm.From(models.TableNames.Todo),
-		qm.Where("title Like '%?%'", query),
-	).Bind(ctx, tr.driver, &todos); err != nil {
+
+	if err := models.Todos(models.TodoWhere.Title.LIKE("%"+query+"%")).Bind(ctx, tr.driver, &todos); err != nil {
 		return nil, err
 	}
 
@@ -98,7 +88,7 @@ func (tr *TodoRepository) FindAll(query string) ([]entity.Todo, error) {
 	return entity_todos, nil
 }
 
-func (tr *TodoRepository) Update(todo entity.Todo) (entity.Todo, error) {
+func (tr *TodoRepository) Update(ctx context.Context, todo entity.Todo) (entity.Todo, error) {
 	model_todo := models.Todo{
 		ID:          todo.Id.GetValue(),
 		Title:       todo.Title.GetValue(),
@@ -106,7 +96,6 @@ func (tr *TodoRepository) Update(todo entity.Todo) (entity.Todo, error) {
 		StatusNo:    values.GetTodoStatusNumber(todo.Status),
 	}
 
-	ctx := context.Background()
 	_, err := model_todo.Update(ctx, tr.driver, boil.Infer())
 	if err != nil {
 		return todo, err
@@ -116,9 +105,8 @@ func (tr *TodoRepository) Update(todo entity.Todo) (entity.Todo, error) {
 	return entity_todo, nil
 }
 
-func (tr *TodoRepository) Delete(id values.TaskId[int]) (bool, error) {
+func (tr *TodoRepository) Delete(ctx context.Context, id values.TaskId[int]) (bool, error) {
 
-	ctx := context.Background()
 	new_tx, err := tr.driver.BeginTx(ctx, &sql.TxOptions{})
 
 	if err != nil {

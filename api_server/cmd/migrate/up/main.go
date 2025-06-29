@@ -4,6 +4,7 @@ import (
 	driver_conn "api/internal/io_infra/database/driver"
 
 	"fmt"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
@@ -11,10 +12,20 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
+var is_migrate_done = false
+
 func SetUp() {
 
 	db, _ := driver_conn.NewMySqlDriver()
-	defer db.Close()
+	defer func() {
+		recover()
+		if !is_migrate_done {
+			timer := time.NewTimer(15 * time.Second)
+			<-timer.C
+			SetUp()
+		}
+
+	}()
 	driver, _ := mysql.WithInstance(db, &mysql.Config{})
 	m, err := migrate.NewWithDatabaseInstance(
 		"file:///usr/src/app/internal/io_infra/database/migration",
@@ -32,7 +43,6 @@ func SetUp() {
 		return
 	}
 
-	fmt.Println(m)
 	no, is_dirty, _ := m.Version()
 
 	if is_dirty {
@@ -44,6 +54,7 @@ func SetUp() {
 
 		return
 	}
+	is_migrate_done = true
 
 	fmt.Println("テーブルのマイグレーションが完了しました。")
 }

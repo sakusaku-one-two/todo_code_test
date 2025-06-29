@@ -9,4 +9,6 @@ import (
 func SetUpHandler(mux *http.ServeMux) {
 	path, handler := connect.NewTodoServiceHandler(grpc_service.NewTodoGrpcServer())
 	mux.Handle(path, handler)
+	grpc_mux := http.NewServeMux()
+	grpc_mux.Handle("/grpc/", http.StripPrefix("/grpc", mux))
 }

@@ -1,11 +1,9 @@
 package todo_repository
 
 import (
-	entity "api/internal/domain/entitys/todo_entity"
-	values "api/internal/domain/values/todo_values"
+	"context"
 	"fmt"
 	"testing"
-	"time"
 )
 
 func Test_repo(t *testing.T) {
@@ -13,24 +11,25 @@ func Test_repo(t *testing.T) {
 	if err != nil || repo == nil {
 		return
 	}
-
-	title, _ := values.NewTitle("sakusaku")
-	desc, _ := values.NewDescription("sakuksau desc")
-	limit, _ := values.NewLimit(time.Now())
-	fmt.Println(limit)
-	status, _ := values.GetTodoStatus(0)
-	todo := entity.Todo{
-		Title:       title,
-		Description: desc,
-		Limit:       limit,
-		Status:      status,
-	}
-	repo.Create(todo)
+	ctx := context.Background()
+	// title, _ := values.NewTitle("sakusaku")
+	// desc, _ := values.NewDescription("sakuksau desc")
+	// limit, _ := values.NewLimit(time.Now())
+	// fmt.Println(limit)
+	// status, _ := values.GetTodoStatus(0)
+	// todo := entity.Todo{
+	// 	Title:       title,
+	// 	Description: desc,
+	// 	Limit:       limit,
+	// 	Status:      status,
+	// }
+	// repo.Create(ctx, todo)
 
 	data, err := repo.FindAll(
-		"saku",
+		ctx,
+		"n",
 	)
 
-	fmt.Println("find => ", data, err)
+	fmt.Println("find data => ", data, err)
 
 }

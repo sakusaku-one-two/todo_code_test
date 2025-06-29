@@ -2,12 +2,13 @@ package repository
 
 import (
 	values "api/internal/domain/values"
+	"context"
 )
 
 type IRepository[modelT any, domainT any, id values.IValue[int]] interface {
-	Create(domainT) (domainT, error)
-	Update(domainT) (domainT, error)
-	GetAll() ([]domainT, error)
-	FindAll(query string) ([]domainT, error)
-	Delete(id) (bool, error)
+	Create(context.Context, domainT) (domainT, error)
+	Update(context.Context, domainT) (domainT, error)
+	GetAll(context.Context) ([]domainT, error)
+	FindAll(ctx context.Context, query string) ([]domainT, error)
+	Delete(context.Context, id) (bool, error)
 }

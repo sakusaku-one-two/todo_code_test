@@ -2,6 +2,7 @@ package todo_usecase
 
 import (
 	repo "api/internal/domain/repository/todo_repository"
+
 	"fmt"
 	"testing"
 
@@ -34,8 +35,8 @@ func init() {
 }
 
 func Test_todo_create(t *testing.T) {
-
-	create_todo_res := todo_use_case.CreateTodo(&grpc_connection.CreateTodoRequest{
+	ctx := t.Context()
+	create_todo_res := todo_use_case.CreateTodo(ctx, &grpc_connection.CreateTodoRequest{
 		RequestTodo: generate_grpc_todo(1, "new_todo_sample", "description_new_todo", time.Now().Add(100*time.Minute)),
 	})
 
@@ -51,7 +52,8 @@ func Test_todo_create(t *testing.T) {
 }
 
 func Test_todo_getall(t *testing.T) {
-	res := todo_use_case.GetAllTodo(&grpc_connection.GetALLRequest{
+	ctx := t.Context()
+	res := todo_use_case.GetAllTodo(ctx, &grpc_connection.GetALLRequest{
 		Request: "",
 		IsSort:  true,
 	})

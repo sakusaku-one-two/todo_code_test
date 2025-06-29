@@ -6,6 +6,7 @@ import (
 	values "api/internal/domain/values/todo_values"
 	grpc_connection "api/internal/grpc_gen/todo/v1"
 	models "api/internal/io_infra/database/models"
+	"context"
 )
 
 type TodoUseCase[repoType repo.IRepository[models.Todo, entity.Todo, values.TaskId[int]]] struct {
@@ -19,7 +20,7 @@ func NewTodoUseCase[repoType repo.IRepository[models.Todo, entity.Todo, values.T
 	return todo_usecase
 }
 
-func (tuc *TodoUseCase[repoType]) CreateTodo(req *grpc_connection.CreateTodoRequest) *grpc_connection.CreateTodoResponse {
+func (tuc *TodoUseCase[repoType]) CreateTodo(ctx context.Context, req *grpc_connection.CreateTodoRequest) *grpc_connection.CreateTodoResponse {
 
 	request_todo := req.GetRequestTodo()
 	title, err := values.NewTitle(request_todo.Title)
@@ -44,7 +45,7 @@ func (tuc *TodoUseCase[repoType]) CreateTodo(req *grpc_connection.CreateTodoRequ
 		Status:      status,
 	}
 
-	created_todo, err := tuc.repository.Create(entity_todo)
+	created_todo, err := tuc.repository.Create(ctx, entity_todo)
 	if err != nil {
 		return &grpc_connection.CreateTodoResponse{
 			Result:      false,
@@ -55,9 +56,9 @@ func (tuc *TodoUseCase[repoType]) CreateTodo(req *grpc_connection.CreateTodoRequ
 	return &grpc_connection.CreateTodoResponse{Result: true, CreatedTodo: EntityToGrpcMessage(created_todo), Error: ""}
 }
 
-func (tuc *TodoUseCase[repoType]) GetAllTodo(req *grpc_connection.GetALLRequest) *grpc_connection.TodoListResponse {
+func (tuc *TodoUseCase[repoType]) GetAllTodo(ctx context.Context, req *grpc_connection.GetALLRequest) *grpc_connection.TodoListResponse {
 
-	todos, err := tuc.repository.GetAll()
+	todos, err := tuc.repository.GetAll(ctx)
 	if err != nil {
 		return &grpc_connection.TodoListResponse{Error: err.Error()}
 	}
@@ -69,19 +70,19 @@ func (tuc *TodoUseCase[repoType]) GetAllTodo(req *grpc_connection.GetALLRequest)
 	return &grpc_connection.TodoListResponse{Result: grpc_todos, Error: ""}
 }
 
-func (tuc *TodoUseCase[repoType]) DeleteTodo(req *grpc_connection.DeleteTodoRequest) *grpc_connection.DeleteTodoResponse {
+func (tuc *TodoUseCase[repoType]) DeleteTodo(ctx context.Context, req *grpc_connection.DeleteTodoRequest) *grpc_connection.DeleteTodoResponse {
 
 	id := int(req.Id)
 	task_id, err := values.NewTaskId(id)
 
-	if ok, err := tuc.repository.Delete(task_id); !ok {
+	if ok, err := tuc.repository.Delete(ctx, task_id); !ok {
 		return &grpc_connection.DeleteTodoResponse{
 			Result: false,
 			Error:  err.Error(),
 		}
 	}
 
-	todos, err := tuc.repository.GetAll()
+	todos, err := tuc.repository.GetAll(ctx)
 	if err != nil {
 		return &grpc_connection.DeleteTodoResponse{Result: false}
 	}
@@ -96,10 +97,10 @@ func (tuc *TodoUseCase[repoType]) DeleteTodo(req *grpc_connection.DeleteTodoRequ
 	}
 }
 
-func (tuc *TodoUseCase[repoType]) FindAll(req *grpc_connection.SearchRequest) *grpc_connection.TodoListResponse {
+func (tuc *TodoUseCase[repoType]) FindAll(ctx context.Context, req *grpc_connection.SearchRequest) *grpc_connection.TodoListResponse {
 	query_string := req.GetQuery()
 
-	todos, err := tuc.repository.FindAll(query_string)
+	todos, err := tuc.repository.FindAll(ctx, query_string)
 	if err != nil {
 		return &grpc_connection.TodoListResponse{
 			Result: make([]*grpc_connection.Todo, 0),
