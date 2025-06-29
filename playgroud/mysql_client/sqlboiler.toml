@@ -1,9 +1,0 @@
-
-[mysql]
-  dbname  = "todo_database"
-  host    = "localhost"
-  port    = 3306
-  user    = "mysql_user"
-  pass    = "todo_database_password"
-  sslmode = "false"
-  tinyint_as_int = true

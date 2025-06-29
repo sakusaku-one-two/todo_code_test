@@ -1,39 +1,105 @@
 # todo_code_test
 コーディングテスト
 
-```shtodo01/├── cmd/ # アプリケーションエントリーポイント│ ├── client/ # CLI client│ └── server/ # gRPC server├── internal/│ ├── db/ # データベース接続とリポジトリ│ │ └── generated/ # SQLBoilerによる自動生成コード│ ├── handler/ # gRPCハンドラー│ └── models/ # 内部データモデル├── proto/ # Protocol Buffers定義│ └── todo/│ └── v1/ # バージョン管理されたAPI定義├── migrations/ # データベースマイグレーション├── scripts/ # セットアップスクリプト├── Dockerfile # Docker設定├── docker-compose.yml # Docker Compose設定├── Makefile # ビルドタスク└── README.md # ドキュメント```
+##
+
+実行方法は以下になります。
+
+①docker立ち上げスクリプト
+```
+cd todo_code_test
+bash grpc_backend_start.sh
+```
+
+②docker-composeのビルド画面から下記の文章が出るまで待機をお願いします。
+```
+api_server-1  | テーブルのマイグレーションが完了しました。
+```
+
+③別のターミナルを立ち上げて下記のスクリプトを実行するとCLIが立ち上がります。
+
+```
+bash grpc_client_start.sh
+```
+##
+
+
+
+ディレクトリ構成（サーバーサイド）
+
+DDDをイメージして作成しました。具体的にはIOに関わるコードはio_infraにまとめ、アプリケーションのロジックはdomainにまとめました。
 
 
 ```
-
-MYSQL_ROOT_PASSWORD=root_password
-MYSQL_DATABASE=todo_database
-MYSQL_USER=mysql_user
-MYSQL_PASSWORD=todo_database_password
-MYSQL_HOSTNAME=db
-
-
-migrate -path ./migration -database "mysql://mysql_user:todo_database_password@tcp(localhost:3306)/todo_database" up
-
- grpcurl \
-    -protoset <(buf build -o -) -plaintext \
-    -d '{"request": "Jane"}'
-    localhost:8080 todo.v1.TodoService/GetAllTodo
-
-     grpcurl     -protoset <(buf build -o -) -plaintext     -d '{"query": "self create todo"}'     localhost:8080 proto.todo.v1.TodoService/FindTodo
-
-
-     curl     --header "Content-Type: application/json"     --data '{"request": "Jane"}'     http://localhost:8080/proto.todo.v1.TodoService/GetAllTodo
-
-    message GetALLRequest {
-    string request = 1;
-    bool is_sort = 2;
-
-
-    option go_package = "api/internal/grpc_gen/todo/v1;todo_v1";
-
-}
-
-
-
+api_server
+  ├── Dockerfile
+  ├── cmd
+  │   ├── api
+  │   │   └── main.go
+  │   └── migrate
+  │       ├── down
+  │       │   └── main.go
+  │       └── up
+  │           └── main.go
+  ├── go.mod
+  ├── go.sum
+  ├── internal
+  │   ├── domain
+  │   │   ├── entitys
+  │   │   │   └── todo_entity
+  │   │   │       └── todo.go
+  │   │   ├── repository
+  │   │   │   ├── Irepository.go
+  │   │   │   └── todo_repository
+  │   │   │       ├── repo_test.go
+  │   │   │       └── todo_repository.go
+  │   │   ├── use_cases
+  │   │   │   └── todo_usecase
+  │   │   │       ├── todo_usecase.go
+  │   │   │       ├── todo_usecase_helper.go
+  │   │   │       └── todo_usecase_test.go
+  │   │   └── values
+  │   │       ├── IValue.go
+  │   │       └── todo_values
+  │   │           ├── description.go
+  │   │           ├── limit.go
+  │   │           ├── status.go
+  │   │           ├── task_id.go
+  │   │           ├── title.go
+  │   │           └── todo_values_test.go
+  │   ├── grpc_gen
+  │   │   └── todo
+  │   │       └── v1
+  │   │           ├── todo.pb.go
+  │   │           └── todov1connect
+  │   │               └── todo.connect.go
+  │   ├── handler
+  │   │   └── todo_handler.go
+  │   └── io_infra
+  │       ├── config
+  │       │   ├── my_sql_config
+  │       │   │   ├── config_test.go
+  │       │   │   └── database_config.go
+  │       │   └── server_config
+  │       │       └── server_config.go
+  │       ├── database
+  │       │   ├── driver
+  │       │   │   ├── db_driver_test.go
+  │       │   │   └── driver.go
+  │       │   ├── migration
+  │       │   │   ├── 000001_create_todo.down.sql
+  │       │   │   └── 000001_create_todo.up.sql
+  │       │   ├── models
+  │       │   │   └── .... sqlboilerによる自動生成テンプレート
+  │       │   └── sqlboiler.toml
+  │       ├── grpc_services
+  │       │   ├── todo_service.go
+  │       │   └── todo_service_test.go
+  │       └── server
+  │           └── server.go
+  └── util
+      ├── env.go
+      ├── env_test.go
+      ├── nil_checker.go
+      └── nil_checker_test.go
 ```
