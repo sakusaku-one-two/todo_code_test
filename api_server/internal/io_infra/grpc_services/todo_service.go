@@ -27,14 +27,13 @@ func NewTodoGrpcServer() *TodoServer {
 
 func (ts TodoServer) CreateTodo(ctx context.Context, req *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error) {
 
-	response := ts.todo_use_case.CreateTodo(ctx, req.Msg)
-	return connect.NewResponse(response), nil
+	response, err := ts.todo_use_case.CreateTodo(ctx, req.Msg)
+	return connect.NewResponse(response), err
 }
-
 func (ts TodoServer) GetAllTodo(ctx context.Context, req *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error) {
 
-	response := ts.todo_use_case.GetAllTodo(ctx, req.Msg)
-	return connect.NewResponse(response), nil
+	response, err := ts.todo_use_case.GetAllTodo(ctx, req.Msg)
+	return connect.NewResponse(response), err
 }
 
 func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1.SearchRequest, v1.TodoListResponse]) error {
@@ -62,7 +61,7 @@ func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1
 	go func() { // ユースケースにリクエストを渡してレスポンスを送信専用チャネルに渡すためのゴルーチン
 		defer wg.Done()
 		for req := range Request_channel {
-			res := ts.todo_use_case.FindAll(ctx, req)
+			res, _ := ts.todo_use_case.FindAll(ctx, req)
 			Response_channel <- res
 		}
 		close(Response_channel) //送信専用ゴルーチンのイベントループを終了させるためのclose
@@ -82,6 +81,12 @@ func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1
 
 func (ts TodoServer) DeleteTodo(ctx context.Context, req *connect.Request[v1.DeleteTodoRequest]) (*connect.Response[v1.DeleteTodoResponse], error) {
 
-	response := ts.todo_use_case.DeleteTodo(ctx, req.Msg)
-	return connect.NewResponse(response), nil
+	response, err := ts.todo_use_case.DeleteTodo(ctx, req.Msg)
+	return connect.NewResponse(response), err
+}
+
+func (ts TodoServer) UpdateTodo(ctx context.Context, req *connect.Request[v1.UpdateTodoRequest]) (*connect.Response[v1.UpdateTodoResponse], error) {
+	res, err := ts.todo_use_case.UpdateTodo(ctx, req.Msg)
+	return connect.NewResponse(res), err
+
 }

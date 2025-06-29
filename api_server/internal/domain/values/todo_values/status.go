@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	COMPLETE = iota
-	INCOMPETE
+	INCOMPETE = 0
+	COMPLETE  = 1
 )
 
 var (

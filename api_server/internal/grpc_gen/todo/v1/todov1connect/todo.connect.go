@@ -39,6 +39,8 @@ const (
 	TodoServiceGetAllTodoProcedure = "/proto.todo.v1.TodoService/GetAllTodo"
 	// TodoServiceFindTodoProcedure is the fully-qualified name of the TodoService's FindTodo RPC.
 	TodoServiceFindTodoProcedure = "/proto.todo.v1.TodoService/FindTodo"
+	// TodoServiceUpdateTodoProcedure is the fully-qualified name of the TodoService's UpdateTodo RPC.
+	TodoServiceUpdateTodoProcedure = "/proto.todo.v1.TodoService/UpdateTodo"
 	// TodoServiceDeleteTodoProcedure is the fully-qualified name of the TodoService's DeleteTodo RPC.
 	TodoServiceDeleteTodoProcedure = "/proto.todo.v1.TodoService/DeleteTodo"
 )
@@ -48,6 +50,7 @@ type TodoServiceClient interface {
 	CreateTodo(context.Context, *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error)
 	GetAllTodo(context.Context, *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error)
 	FindTodo(context.Context) *connect.BidiStreamForClient[v1.SearchRequest, v1.TodoListResponse]
+	UpdateTodo(context.Context, *connect.Request[v1.UpdateTodoRequest]) (*connect.Response[v1.UpdateTodoResponse], error)
 	DeleteTodo(context.Context, *connect.Request[v1.DeleteTodoRequest]) (*connect.Response[v1.DeleteTodoResponse], error)
 }
 
@@ -80,6 +83,12 @@ func NewTodoServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(todoServiceMethods.ByName("FindTodo")),
 			connect.WithClientOptions(opts...),
 		),
+		updateTodo: connect.NewClient[v1.UpdateTodoRequest, v1.UpdateTodoResponse](
+			httpClient,
+			baseURL+TodoServiceUpdateTodoProcedure,
+			connect.WithSchema(todoServiceMethods.ByName("UpdateTodo")),
+			connect.WithClientOptions(opts...),
+		),
 		deleteTodo: connect.NewClient[v1.DeleteTodoRequest, v1.DeleteTodoResponse](
 			httpClient,
 			baseURL+TodoServiceDeleteTodoProcedure,
@@ -94,6 +103,7 @@ type todoServiceClient struct {
 	createTodo *connect.Client[v1.CreateTodoRequest, v1.CreateTodoResponse]
 	getAllTodo *connect.Client[v1.GetALLRequest, v1.TodoListResponse]
 	findTodo   *connect.Client[v1.SearchRequest, v1.TodoListResponse]
+	updateTodo *connect.Client[v1.UpdateTodoRequest, v1.UpdateTodoResponse]
 	deleteTodo *connect.Client[v1.DeleteTodoRequest, v1.DeleteTodoResponse]
 }
 
@@ -112,6 +122,11 @@ func (c *todoServiceClient) FindTodo(ctx context.Context) *connect.BidiStreamFor
 	return c.findTodo.CallBidiStream(ctx)
 }
 
+// UpdateTodo calls proto.todo.v1.TodoService.UpdateTodo.
+func (c *todoServiceClient) UpdateTodo(ctx context.Context, req *connect.Request[v1.UpdateTodoRequest]) (*connect.Response[v1.UpdateTodoResponse], error) {
+	return c.updateTodo.CallUnary(ctx, req)
+}
+
 // DeleteTodo calls proto.todo.v1.TodoService.DeleteTodo.
 func (c *todoServiceClient) DeleteTodo(ctx context.Context, req *connect.Request[v1.DeleteTodoRequest]) (*connect.Response[v1.DeleteTodoResponse], error) {
 	return c.deleteTodo.CallUnary(ctx, req)
@@ -122,6 +137,7 @@ type TodoServiceHandler interface {
 	CreateTodo(context.Context, *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error)
 	GetAllTodo(context.Context, *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error)
 	FindTodo(context.Context, *connect.BidiStream[v1.SearchRequest, v1.TodoListResponse]) error
+	UpdateTodo(context.Context, *connect.Request[v1.UpdateTodoRequest]) (*connect.Response[v1.UpdateTodoResponse], error)
 	DeleteTodo(context.Context, *connect.Request[v1.DeleteTodoRequest]) (*connect.Response[v1.DeleteTodoResponse], error)
 }
 
@@ -150,6 +166,12 @@ func NewTodoServiceHandler(svc TodoServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(todoServiceMethods.ByName("FindTodo")),
 		connect.WithHandlerOptions(opts...),
 	)
+	todoServiceUpdateTodoHandler := connect.NewUnaryHandler(
+		TodoServiceUpdateTodoProcedure,
+		svc.UpdateTodo,
+		connect.WithSchema(todoServiceMethods.ByName("UpdateTodo")),
+		connect.WithHandlerOptions(opts...),
+	)
 	todoServiceDeleteTodoHandler := connect.NewUnaryHandler(
 		TodoServiceDeleteTodoProcedure,
 		svc.DeleteTodo,
@@ -164,6 +186,8 @@ func NewTodoServiceHandler(svc TodoServiceHandler, opts ...connect.HandlerOption
 			todoServiceGetAllTodoHandler.ServeHTTP(w, r)
 		case TodoServiceFindTodoProcedure:
 			todoServiceFindTodoHandler.ServeHTTP(w, r)
+		case TodoServiceUpdateTodoProcedure:
+			todoServiceUpdateTodoHandler.ServeHTTP(w, r)
 		case TodoServiceDeleteTodoProcedure:
 			todoServiceDeleteTodoHandler.ServeHTTP(w, r)
 		default:
@@ -185,6 +209,10 @@ func (UnimplementedTodoServiceHandler) GetAllTodo(context.Context, *connect.Requ
 
 func (UnimplementedTodoServiceHandler) FindTodo(context.Context, *connect.BidiStream[v1.SearchRequest, v1.TodoListResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("proto.todo.v1.TodoService.FindTodo is not implemented"))
+}
+
+func (UnimplementedTodoServiceHandler) UpdateTodo(context.Context, *connect.Request[v1.UpdateTodoRequest]) (*connect.Response[v1.UpdateTodoResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("proto.todo.v1.TodoService.UpdateTodo is not implemented"))
 }
 
 func (UnimplementedTodoServiceHandler) DeleteTodo(context.Context, *connect.Request[v1.DeleteTodoRequest]) (*connect.Response[v1.DeleteTodoResponse], error) {

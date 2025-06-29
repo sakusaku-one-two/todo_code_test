@@ -94,9 +94,10 @@ func (tr *TodoRepository) Update(ctx context.Context, todo entity.Todo) (entity.
 		Title:       todo.Title.GetValue(),
 		Description: todo.Description.GetValue(),
 		StatusNo:    values.GetTodoStatusNumber(todo.Status),
+		LimitTime:   todo.Limit.GetValue(),
 	}
-
-	_, err := model_todo.Update(ctx, tr.driver, boil.Infer())
+	cols := models.TodoColumns
+	_, err := model_todo.Update(ctx, tr.driver, boil.Whitelist(cols.Title, cols.Description, cols.StatusNo, cols.LimitTime))
 	if err != nil {
 		return todo, err
 	}

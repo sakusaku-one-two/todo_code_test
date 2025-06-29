@@ -10,7 +10,7 @@ option go_package = "api/internal/grpc_gen/todo/v1;todo_v1";
 
 enum Status {
     INCOMPLETE = 0;
-    COMPLETE = 2;
+    COMPLETE = 1;
 }
 
 
@@ -79,11 +79,20 @@ message DeleteTodoResponse {
     string error = 3;
 }
 
+message UpdateTodoRequest {
+    Todo todo = 1;
+}
+
+message UpdateTodoResponse {
+    bool  result = 1;
+    string err = 2;
+}
 
 service TodoService {
     rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse){};
     rpc GetAllTodo(GetALLRequest) returns(TodoListResponse){};
     rpc FindTodo(stream SearchRequest) returns(stream TodoListResponse){};
+    rpc UpdateTodo(UpdateTodoRequest) returns (UpdateTodoResponse){};
     rpc DeleteTodo(DeleteTodoRequest) returns(DeleteTodoResponse){};
 }
 

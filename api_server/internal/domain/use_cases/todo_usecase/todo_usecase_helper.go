@@ -23,6 +23,7 @@ func EntityToGrpcMessage(entity_todo entity.Todo) *grpc_connection.Todo {
 }
 
 func GrpcMessageToEntity(grpc_todo *grpc_connection.Todo) (*entity.Todo, error) {
+
 	title, err := values.NewTitle(grpc_todo.Title)
 	if err != nil {
 		return nil, err
@@ -37,6 +38,7 @@ func GrpcMessageToEntity(grpc_todo *grpc_connection.Todo) (*entity.Todo, error) 
 	if err != nil {
 		return nil, err
 	}
+
 	id, err := values.NewTaskId(int32_to_int(grpc_todo.Id))
 	if err != nil {
 		return nil, err

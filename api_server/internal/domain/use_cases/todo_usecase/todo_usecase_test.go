@@ -36,7 +36,7 @@ func init() {
 
 func Test_todo_create(t *testing.T) {
 	ctx := t.Context()
-	create_todo_res := todo_use_case.CreateTodo(ctx, &grpc_connection.CreateTodoRequest{
+	create_todo_res, _ := todo_use_case.CreateTodo(ctx, &grpc_connection.CreateTodoRequest{
 		RequestTodo: generate_grpc_todo(1, "new_todo_sample", "description_new_todo", time.Now().Add(100*time.Minute)),
 	})
 
@@ -53,7 +53,7 @@ func Test_todo_create(t *testing.T) {
 
 func Test_todo_getall(t *testing.T) {
 	ctx := t.Context()
-	res := todo_use_case.GetAllTodo(ctx, &grpc_connection.GetALLRequest{
+	res, _ := todo_use_case.GetAllTodo(ctx, &grpc_connection.GetALLRequest{
 		Request: "",
 		IsSort:  true,
 	})
