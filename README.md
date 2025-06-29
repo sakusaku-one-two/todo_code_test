@@ -1,44 +1,54 @@
-# todo_code_test
-コーディングテスト
 
-go 1.24.4
+-----
 
+# todo\_code\_test
 
-##
+このプロジェクトは、Go 1.24.4を使用しています。
 
-実行方法は以下になります。
+## 実行方法
 
-①docker立ち上げスクリプト
-```
-cd todo_code_test
+プロジェクトの実行はDockerを利用します。以下の手順で簡単にアプリケーションを起動できます。
+
+### 1\. Dockerコンテナの起動
+
+`todo_code_test` ディレクトリに移動し、以下のコマンドを実行してDockerコンテナを起動します。
+
+```bash
 make api-run
 ```
 
-②docker-composeのビルド画面から下記の文章が出るまで待機をお願いします。
-```
-api_server-1  | テーブルのマイグレーションが完了しました。
-```
+Docker Composeのビルド画面で\*\*`テーブルのマイグレーションが完了しました。`\*\*というメッセージが表示されるまでお待ちください。
 
-③別のターミナルを立ち上げて下記のスクリプトを実行するとCLIが立ち上がります。
+### 2\. CLIの実行
 
-```
-cd todo_code_test
+別のターミナルを立ち上げ、同様に `todo_code_test` ディレクトリに移動してから、以下のコマンドを実行してください。
+
+```bash
 make cli-run
 ```
-##
 
+このコマンドでCLIクライアントが起動し、アプリケーションの操作が可能になります。
 
+-----
 
 ## ディレクトリ構成（サーバーサイド）
 
-以下の点を工夫いたしました。
+### 工夫した点
 
-1️⃣： 軽量DDDをイメージして作成しました。具体的にはI/Oに関わるコードは  io_infraにまとめ、アプリケーションのロジックはdomainにまとめました。      
-2️⃣： またデプロイのことを考えた際、CLIクライアントをGoの同一モジュールで実装することに違和感を感じたので、別のモジュールとして実装しました。 ただbufのサンプルコードだとprotcol bufferのビルドファイルを
-3️⃣： そのままdockerビルドしてデプロイできるように環境変数を通してHostとDBとの接続アドレス・ポートを設定できるようにしました。  
-4️⃣: sqlboilerのコマンドを実行しなくていいよう、cmd/migrate/up/main.goにmigrateを実行する処理を記述しました。これはsql boilerの公式ドキュメントで見つけたので取り入れました。
+このプロジェクトは、以下の点を念頭に置いて設計・実装されています。
 
+1.  **軽量DDD（ドメイン駆動設計）**
+    I/O処理（インフラ層）とアプリケーションのロジックを明確に分離しました。
+      * **`io_infra`**: データベース接続やgRPCサービスといったI/Oに関連するコードをまとめています。
+      * **`domain`**: アプリケーションのコアロジック（エンティティ、リポジトリ、ユースケース）を配置しています。
+2.  **モジュール分割**
+    デプロイの観点から、サーバーとCLIクライアントを別のGoモジュールとして開発しました。これにより、それぞれの独立性を高めています。
+3.  **環境変数による設定**
+    Dockerビルド後のデプロイを考慮し、データベースのホストやポートといった接続情報は環境変数から設定できるようにしています。
+4.  **自動マイグレーション**
+    `sqlboiler`の公式ドキュメントを参考に、`cmd/migrate/up/main.go`にマイグレーション処理を組み込みました。これにより、`sqlboiler`のコマンドを手動で実行する必要がなくなりました。
 
+### ディレクトリツリー
 
 ```
 api_server
@@ -114,25 +124,31 @@ api_server
       └── nil_checker_test.go
 ```
 
+-----
 
+## gRPCサービス定義
 
-## GRPC
+gRPCサービスは以下のように定義されています。
 
-```
-
+```protobuf
 service TodoService {
+    // 新しいTODOを作成
     rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse){};
+
+    // 全てのTODOを取得
     rpc GetAllTodo(GetALLRequest) returns(TodoListResponse){};
+
+    // TODOを検索 (双方向ストリーム)
     rpc FindTodo(stream SearchRequest) returns(stream TodoListResponse){};
+
+    // 既存のTODOを更新
     rpc UpdateTodo(UpdateTodoRequest) returns (UpdateTodoResponse){};
+
+    // TODOを削除
     rpc DeleteTodo(DeleteTodoRequest) returns(DeleteTodoResponse){};
 }
-
-
 ```
 
-検索する機能(FindTodo)のみ双方向ストリームで実装しました。これは双方向ストリームに興味があったので個人的な学習目的で行いました。
-
-
+`FindTodo`機能は**双方向ストリーム**で実装しています。これは、個人的な学習目的で双方向ストリームに興味があったため、実験的に取り入れました。
 
 
