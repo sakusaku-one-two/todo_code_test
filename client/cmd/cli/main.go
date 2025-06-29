@@ -39,7 +39,7 @@ func main() {
 
 	for {
 
-		fmt.Println("削除・作成・更新・検索・取得・終了のどれかを入力してください。")
+		fmt.Println("'削除'・'作成'・'更新'(完了)・'検索'・'取得'・'終了'のどれかを入力してください。 ctl+cで強制終了")
 		fmt.Scan(&input_value)
 
 		switch input_value {
@@ -51,11 +51,32 @@ func main() {
 			FindSerch(TodoServiceClient)
 		case "更新":
 			Update(TodoServiceClient)
+		case "削除":
+			Delete(TodoServiceClient)
 		case "終了":
 			return
 		}
 
 	}
+}
+
+//----------------------[以下ロジック]--------------------//
+
+func PrintTodo(idx int, todo *v1.Todo) {
+	idx += 1
+
+	fmt.Println(idx, "___________________________________________________")
+	fmt.Println("タイトル", todo.Title)
+	fmt.Println("説明　　", todo.Description)
+	fmt.Println("期限　　", ToDate(todo.LimitTime))
+	fmt.Println("状態　　", GetStatus(todo.Status))
+	fmt.Println("作成日　", ToDate(todo.GetCreatedAt()))
+	fmt.Println("________________________________________________________")
+}
+
+func ToDate(target *timestamppb.Timestamp) string {
+	target_time := target.AsTime()
+	return fmt.Sprintf("%d年%d月%d日", target_time.Year(), target_time.Month(), target_time.Day())
 }
 
 func ToInt(target string) int {
@@ -84,16 +105,21 @@ func CreateTodo(todo_service_client todov1connect.TodoServiceClient) {
 	fmt.Scan(&title)
 	fmt.Println("説明を入力してください。")
 	fmt.Scan(&descrpition)
-	fmt.Println("期限の月を半角数値で指定してください。")
+	fmt.Println("期限の月(1~12)を半角数値で指定してください。")
 	fmt.Scan(&limit_month)
 	limit_mouth_as_int = ToInt(limit_month)
 	fmt.Println("期限の日を半角数値で入力してください。")
 	fmt.Scan(&limit_day)
-	limit_day_as_int = ToInt(limit_day)
+	limit_day_as_int = ToInt(limit_day) + 1
 	year := time.Now().Local().Year()
 	limit_date := time.Date(year, time.Month(limit_mouth_as_int), limit_day_as_int, 0, 0, 0, 0, time.Local)
 
-	res, _ := todo_service_client.CreateTodo(context.Background(),
+	if limit_date.Before(time.Now()) {
+		fmt.Println("期限の指定は今日以降の日付を入れてください。")
+		return
+	}
+
+	res, err := todo_service_client.CreateTodo(context.Background(),
 		connect.NewRequest(&v1.CreateTodoRequest{RequestTodo: &v1.Todo{
 			Title:       title,
 			Description: descrpition,
@@ -101,6 +127,10 @@ func CreateTodo(todo_service_client todov1connect.TodoServiceClient) {
 			Status:      v1.Status_INCOMPLETE,
 		}}),
 	)
+	if err != nil {
+		fmt.Println("サーバーエラーのため作成できませんでした")
+		return
+	}
 
 	PrintTodo(1, res.Msg.CreatedTodo)
 
@@ -120,23 +150,6 @@ func GetAll(todo_service_client todov1connect.TodoServiceClient) {
 	for idx, todo := range req.Msg.Result {
 		PrintTodo(idx, todo)
 	}
-}
-
-func PrintTodo(idx int, todo *v1.Todo) {
-	idx += 1
-
-	fmt.Println(idx, "___________________________________________________")
-	fmt.Println("タイトル", todo.Title)
-	fmt.Println("説明　　", todo.Description)
-	fmt.Println("期限　　", ToDate(todo.LimitTime))
-	fmt.Println("状態　　", GetStatus(todo.Status))
-	fmt.Println("作成日　", ToDate(todo.GetCreatedAt()))
-	fmt.Println("________________________________________________________")
-}
-
-func ToDate(target *timestamppb.Timestamp) string {
-	target_time := target.AsTime()
-	return fmt.Sprintf("%d年%d月%d日", target_time.Year(), target_time.Month(), target_time.Day())
 }
 
 func GetStatus(status v1.Status) string {
@@ -170,7 +183,7 @@ func FindSerch(todo_service_client todov1connect.TodoServiceClient) {
 		for idx, todo := range res.GetResult() {
 			PrintTodo(idx, todo)
 		}
-		fmt.Println("検索終了しますか？ yes/no")
+		fmt.Println("検索終了しますか？ 'yes'で終了")
 		fmt.Scan(&input_var)
 		if input_var == "yes" {
 			return
@@ -226,4 +239,55 @@ func Update(todo_server_client todov1connect.TodoServiceClient) {
 	}
 
 	fmt.Println("タスクを更新しました。")
+}
+
+func Delete(todo_service_client todov1connect.TodoServiceClient) {
+	ctx := context.Background()
+
+	req, err := todo_service_client.GetAllTodo(
+		context.Background(),
+		connect.NewRequest(&v1.GetALLRequest{Request: "", IsSort: true}),
+	)
+
+	if err != nil {
+		fmt.Println("タスクの取得に失敗しました。")
+		return
+	}
+
+	todos := req.Msg.GetResult()
+
+	if len(todos) == 0 {
+		fmt.Println("現在登録されたTODOはありません。終了します。")
+		return
+	}
+
+	for idx, todo := range todos {
+		PrintTodo(idx, todo)
+	}
+
+	fmt.Println("削除する対象のTodo右上のindex番号を指定してください。")
+	var input_string string
+	fmt.Scan(&input_string)
+	idx_no := ToInt(input_string) - 1
+
+	if idx_no < 0 {
+		fmt.Println("indexの範囲指定外です。")
+		return
+	}
+
+	if len(todos) < idx_no {
+		fmt.Println("indexの範囲指定外です。")
+		return
+	}
+
+	target_todo := todos[idx_no]
+
+	res, err := todo_service_client.DeleteTodo(ctx, connect.NewRequest(&v1.DeleteTodoRequest{Id: *target_todo.Id}))
+	if err != nil || !res.Msg.Result {
+		fmt.Println("削除に失敗しました。")
+		return
+	}
+
+	fmt.Println("削除に成功しました")
+
 }

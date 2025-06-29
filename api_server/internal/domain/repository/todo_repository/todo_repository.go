@@ -26,7 +26,7 @@ type TodoRepository struct {
 	driver *sql.DB
 }
 
-func NewTodoRepostory() (*TodoRepository, error) { // シングルトンを返却
+func NewTodoRepostory() (*TodoRepository, error) {
 	if todo_repository != nil && todo_repository.driver != nil {
 		return todo_repository, nil
 	}
@@ -96,11 +96,22 @@ func (tr *TodoRepository) Update(ctx context.Context, todo entity.Todo) (entity.
 		StatusNo:    values.GetTodoStatusNumber(todo.Status),
 		LimitTime:   todo.Limit.GetValue(),
 	}
-	cols := models.TodoColumns
-	_, err := model_todo.Update(ctx, tr.driver, boil.Whitelist(cols.Title, cols.Description, cols.StatusNo, cols.LimitTime))
-	if err != nil {
-		return todo, err
+
+	cols := models.TodoColumns //　models.TodoColumunsとWhitelistに記載するのがめんどくさいので別名をつけました。
+	tx, _ := tr.driver.Begin()
+
+	_, db_err := model_todo.Update(ctx, tx, boil.Whitelist(cols.Title, cols.Description, cols.StatusNo, cols.LimitTime))
+	if db_err != nil {
+		return todo, db_err
 	}
+
+	defer func() {
+		if db_err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
 
 	entity_todo := tr.model_to_entity(model_todo)
 	return entity_todo, nil
