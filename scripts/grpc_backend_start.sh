@@ -3,4 +3,4 @@
 
 docker-compose up --build
 docker-compose down
-echo DONE!!
+echo ありがとうございました。

@@ -11,7 +11,7 @@ go 1.24.4
 ①docker立ち上げスクリプト
 ```
 cd todo_code_test
-bash scripts/grpc_backend_start.sh
+make api-run
 ```
 
 ②docker-composeのビルド画面から下記の文章が出るまで待機をお願いします。
@@ -22,19 +22,23 @@ api_server-1  | テーブルのマイグレーションが完了しました。
 ③別のターミナルを立ち上げて下記のスクリプトを実行するとCLIが立ち上がります。
 
 ```
-bash scripts/grpc_client_start.sh
+cd todo_code_test
+make cli-run
 ```
 ##
 
 
 
-ディレクトリ構成（サーバーサイド）
+## ディレクトリ構成（サーバーサイド）
 
 以下の点を工夫いたしました。
 
-1️⃣： 軽量DDDをイメージして作成しました。具体的にはIOに関わるコードはio_infraにまとめ、アプリケーションのロジックはdomainにまとめました。
-2️⃣： またデプロイのことを考え、CLIクライアントをGoの同一モジュールで実装せず別に切り代しました。
-3️⃣： そのままdockerビルドしてデプロイできるように環境変数を通してDBとの接続アドレス・ポートを設定できるようにしました。
+1️⃣： 軽量DDDをイメージして作成しました。具体的にはI/Oに関わるコードは  io_infraにまとめ、アプリケーションのロジックはdomainにまとめました。      
+2️⃣： またデプロイのことを考えた際、CLIクライアントをGoの同一モジュールで実装することに違和感を感じたので、別のモジュールとして実装しました。 ただbufのサンプルコードだとprotcol bufferのビルドファイルを
+3️⃣： そのままdockerビルドしてデプロイできるように環境変数を通してHostとDBとの接続アドレス・ポートを設定できるようにしました。  
+4️⃣: sqlboilerのコマンドを実行しなくていいよう、cmd/migrate/up/main.goにmigrateを実行する処理を記述しました。これはsql boilerの公式ドキュメントで見つけたので取り入れました。
+
+
 
 ```
 api_server
@@ -109,6 +113,26 @@ api_server
       ├── nil_checker.go
       └── nil_checker_test.go
 ```
+
+
+
+## GRPC
+
+```
+
+service TodoService {
+    rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse){};
+    rpc GetAllTodo(GetALLRequest) returns(TodoListResponse){};
+    rpc FindTodo(stream SearchRequest) returns(stream TodoListResponse){};
+    rpc UpdateTodo(UpdateTodoRequest) returns (UpdateTodoResponse){};
+    rpc DeleteTodo(DeleteTodoRequest) returns(DeleteTodoResponse){};
+}
+
+
+```
+
+検索する機能(FindTodo)のみ双方向ストリームで実装しました。これは双方向ストリームに興味があったので個人的な学習目的で行いました。
+
 
 
 
