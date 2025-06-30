@@ -76,7 +76,7 @@ func (tr *TodoRepository) GetAll(ctx context.Context) ([]entity.Todo, error) {
 func (tr *TodoRepository) FindAll(ctx context.Context, query string) ([]entity.Todo, error) {
 	var todos []models.Todo
 
-	if err := models.Todos(models.TodoWhere.Title.LIKE("%"+query+"%")).Bind(ctx, tr.driver, &todos); err != nil {
+	if err := models.Todos(models.TodoWhere.Title.LIKE("%"+query+"%"), models.TodoWhere.IsActivate.EQ(int8(1))).Bind(ctx, tr.driver, &todos); err != nil {
 		return nil, err
 	}
 
