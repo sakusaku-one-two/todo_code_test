@@ -39,7 +39,7 @@ func main() {
 
 	for {
 
-		fmt.Println("'削除'・'作成'・'更新'(完了)・'検索'・'取得'・'終了'のどれかを入力してください。 ctl+cで強制終了")
+		fmt.Println("'削除'・'作成'・'更新'・'検索'・'取得'・'終了'のどれかを入力してください。 ctl+cで強制終了")
 		fmt.Scan(&input_value)
 
 		switch input_value {
@@ -239,7 +239,7 @@ func Update(todo_server_client todov1connect.TodoServiceClient) {
 		fmt.Println("更新に失敗しました。", update_response, err.Error())
 		return
 	}
-
+	PrintTodo(idx_no+1, target_todo)
 	fmt.Println("タスクを更新しました。")
 }
 
