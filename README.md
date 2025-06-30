@@ -8,6 +8,13 @@
 ## セットアップ手順
 
 プロジェクトの実行はサーバーサイドでDockerを利用します。以下の手順で簡単にアプリケーションを起動できます。
+```
+mkdir test_todo
+cd test_todo
+git init
+git clone https://github.com/sakusaku-one-two/todo_code_test.git
+cd todo_code_test
+```
 
 ### 1\. Dockerコンテナの起動
 

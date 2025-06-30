@@ -228,8 +228,10 @@ func Update(todo_server_client todov1connect.TodoServiceClient) {
 
 	target_todo := todos[idx_no]
 
-	target_todo.Status = v1.Status_COMPLETE
-
+	target_todo, ok := UpdateEntry(target_todo)
+	if !ok {
+		return
+	}
 	ctx = context.Background()
 	update_response, err := todo_server_client.UpdateTodo(ctx, connect.NewRequest(&v1.UpdateTodoRequest{Todo: target_todo}))
 
@@ -239,6 +241,41 @@ func Update(todo_server_client todov1connect.TodoServiceClient) {
 	}
 
 	fmt.Println("タスクを更新しました。")
+}
+
+func UpdateEntry(todo *v1.Todo) (*v1.Todo, bool) {
+
+	fmt.Println("更新する項目を数値で選んでください。タイトル:1 説明:2 未完了/完了:3")
+	var input_str string
+	fmt.Scan(&input_str)
+	no := ToInt(input_str)
+	if no <= 0 || no >= 4 {
+		return nil, false
+	}
+	var scan_str string
+	switch no {
+	case 1:
+		fmt.Println("タイトルの更新内容を入力してください")
+		fmt.Scan(&scan_str)
+		todo.Title = scan_str
+	case 2:
+		fmt.Println("説明の更新内容を入力してください。")
+		fmt.Scan(&scan_str)
+		todo.Description = scan_str
+	case 3:
+		fmt.Println("完了は1未完了は2と数値で入力してください。")
+		fmt.Scan(&scan_str)
+		no := ToInt(scan_str)
+		if no == 1 {
+			todo.Status = v1.Status_COMPLETE
+		}
+		if no == 2 {
+			todo.Status = v1.Status_INCOMPLETE
+		}
+	}
+
+	return todo, true
+
 }
 
 func Delete(todo_service_client todov1connect.TodoServiceClient) {
