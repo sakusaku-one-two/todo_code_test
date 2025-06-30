@@ -5,3 +5,5 @@ api-run:
 cli-run:
 	bash scripts/grpc_client_start.sh
 	
+grpc-gen:
+	buf generate

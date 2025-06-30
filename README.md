@@ -5,9 +5,9 @@
 
 このプロジェクトは、Go 1.24.4を使用しています。
 
-## 実行方法
+## セットアップ手順
 
-プロジェクトの実行はDockerを利用します。以下の手順で簡単にアプリケーションを起動できます。
+プロジェクトの実行はサーバーサイドでDockerを利用します。以下の手順で簡単にアプリケーションを起動できます。
 
 ### 1\. Dockerコンテナの起動
 
@@ -17,11 +17,12 @@
 make api-run
 ```
 
-Docker Composeのビルド画面で\*\*`テーブルのマイグレーションが完了しました。`\*\*というメッセージが表示されるまでお待ちください。
+Docker Composeのビルド画面で`テーブルのマイグレーションが完了しました。`というメッセージが表示されるまでお待ちください。
 
 ### 2\. CLIの実行
 
-別のターミナルを立ち上げ、同様に `todo_code_test` ディレクトリに移動してから、以下のコマンドを実行してください。
+別のターミナルを立ち上げ、同様に `todo_code_test` ディレクトリに移動してから、以下のコマンドを実行してください。  
+※こちらはDockerに含めることができませんでした。ローカルにイントールされたGolangを利用しています。
 
 ```bash
 make cli-run
@@ -31,7 +32,6 @@ make cli-run
 
 -----
 
-## ディレクトリ構成（サーバーサイド）
 
 ### 工夫した点
 
@@ -48,8 +48,7 @@ make cli-run
 4.  **自動マイグレーション**
     `sqlboiler`の公式ドキュメントを参考に、`cmd/migrate/up/main.go`にマイグレーション処理を組み込みました。これにより、`sqlboiler`のコマンドを手動で実行する必要がなくなりました。
 
-### ディレクトリツリー
-
+### ディレクトリツリー(サーバー)
 ```
 api_server
   ├── Dockerfile
@@ -126,11 +125,34 @@ api_server
 
 -----
 
+## ディレクトリツリー（クライアント）
+
+```
+client
+  ├── Dockerfile
+  ├── cmd
+  │   └── cli
+  │       └── main.go
+  ├── go.mod
+  ├── go.sum
+  └── internal
+      └── grpc_gen
+          └── todo
+              └── v1
+                  ├── todo.pb.go
+                  └── todov1connect
+                      └── todo.connect.go
+```
+
+
 ## gRPCサービス定義
 
 gRPCサービスは以下のように定義されています。
 
 ```protobuf
+
+// proto/todo/v1/todo.proto
+
 service TodoService {
     // 新しいTODOを作成
     rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse){};
