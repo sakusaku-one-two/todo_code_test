@@ -6,10 +6,10 @@
 このプロジェクトは、Go 1.24.4を使用しています。
 
 使用技術  
-・ connect-go (gRPCの実装で使用)  
-・ sqlboiler/go-migrate (migrateとモデルの作成で使用)  
-・ buf        (protocol bufferの作成で使用)    
-・ docker-compose (mysqlとサーバーサイドのコンテナのために使用)  
+・ connect-go v1.18.1 (gRPCの実装で使用)  
+・ SQLBoiler v4.19.1/go-migrate v4.18.3 (migrateとモデルの作成で使用)  
+・ buf 1.55.1       (protocol bufferの作成で使用)    
+・ docker-compose v2.32.4-desktop.1 (mysqlとサーバーサイドのコンテナのために使用)  
 
 ## セットアップ手順
 
