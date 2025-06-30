@@ -85,7 +85,7 @@ func ToInt(target string) int {
 	if err != nil {
 		var temp string
 		for {
-			fmt.Println("数値で再度入力してください。")
+			fmt.Println("半角数値で再度入力してください。")
 			fmt.Scan(&temp)
 			scaned, err := strconv.Atoi(temp)
 			if err == nil {
@@ -239,7 +239,7 @@ func Update(todo_server_client todov1connect.TodoServiceClient) {
 		fmt.Println("更新に失敗しました。", update_response, err.Error())
 		return
 	}
-	PrintTodo(idx_no+1, target_todo)
+	PrintTodo(idx_no, target_todo)
 	fmt.Println("タスクを更新しました。")
 }
 
@@ -302,7 +302,7 @@ func Delete(todo_service_client todov1connect.TodoServiceClient) {
 		PrintTodo(idx, todo)
 	}
 
-	fmt.Println("削除する対象のTodo右上のindex番号を指定してください。")
+	fmt.Println("削除する対象のTodo左上のindex番号を指定してください。")
 	var input_string string
 	fmt.Scan(&input_string)
 	idx_no := ToInt(input_string) - 1
