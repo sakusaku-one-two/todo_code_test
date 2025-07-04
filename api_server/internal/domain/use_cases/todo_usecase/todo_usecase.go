@@ -4,10 +4,8 @@ import (
 	entity "api/internal/domain/entitys/todo_entity"
 	repo "api/internal/domain/repository"
 	values "api/internal/domain/values/todo_values"
-	v1 "api/internal/grpc_gen/todo/v1"
 	models "api/internal/io_infra/database/models"
 	"context"
-	"log/slog"
 )
 
 type TodoUseCase[repoType repo.IRepository[models.Todo, entity.Todo, values.TaskId[int]]] struct {
@@ -21,126 +19,79 @@ func NewTodoUseCase[repoType repo.IRepository[models.Todo, entity.Todo, values.T
 	return todo_usecase
 }
 
-func (tuc *TodoUseCase[repoType]) CreateTodo(ctx context.Context, req *v1.CreateTodoRequest) (*v1.CreateTodoResponse, error) {
+func (tuc *TodoUseCase[repoType]) CreateTodo(ctx context.Context, new_entity_todo entity.Todo) (entity.Todo, error) {
 
-	request_todo := req.GetRequestTodo()
-	title, err := values.NewTitle(request_todo.Title)
+	inserted_todo, err := tuc.repository.Create(ctx, new_entity_todo)
 	if err != nil {
-		return &v1.CreateTodoResponse{
-			Error: err.Error(),
-		}, err
-	}
-	limit, err := values.NewLimit(request_todo.LimitTime.AsTime())
-	if err != nil {
-		return &v1.CreateTodoResponse{
-			Error: err.Error(),
-		}, err
-	}
-	description, _ := values.NewDescription(request_todo.Description)
-	status, _ := values.GetTodoStatus(int(request_todo.Status))
-
-	entity_todo := entity.Todo{
-		Title:       title,
-		Description: description,
-		Limit:       limit,
-		Status:      status,
+		return entity.Todo{}, err
 	}
 
-	created_todo, err := tuc.repository.Create(ctx, entity_todo)
-	if err != nil {
-		return &v1.CreateTodoResponse{
-			Result:      false,
-			CreatedTodo: EntityToGrpcMessage(created_todo),
-			Error:       err.Error()}, err
-	}
+	return inserted_todo, nil
 
-	return &v1.CreateTodoResponse{Result: true, CreatedTodo: EntityToGrpcMessage(created_todo), Error: ""}, nil
 }
 
-func (tuc *TodoUseCase[repoType]) GetAllTodo(ctx context.Context, req *v1.GetALLRequest) (*v1.TodoListResponse, error) {
+func (tuc *TodoUseCase[repoType]) GetAllTodo(ctx context.Context, is_sorting bool) ([]entity.Todo, error) {
 
 	todos, err := tuc.repository.GetAll(ctx)
 	if err != nil {
-		return &v1.TodoListResponse{Error: err.Error()}, err
+		return make([]entity.Todo, 0), err
 	}
 
-	var grpc_todos []*v1.Todo
-	for _, todo := range todos {
-		grpc_todos = append(grpc_todos, EntityToGrpcMessage(todo))
+	if is_sorting {
+		sorted_todos, err := sortTodo(todos)
+		if err != nil {
+			return todos, err
+		}
+		return sorted_todos, nil
 	}
-	return &v1.TodoListResponse{Result: grpc_todos, Error: ""}, nil
+	return todos, nil
 }
 
-func (tuc *TodoUseCase[repoType]) DeleteTodo(ctx context.Context, req *v1.DeleteTodoRequest) (*v1.DeleteTodoResponse, error) {
+func (tuc *TodoUseCase[repoType]) DeleteTodo(ctx context.Context, target_task_id values.TaskId[int]) ([]entity.Todo, bool, error) { // （残りのタスク、削除成功かどうかの結果、エラー）
 
-	id := int(req.Id)
-	task_id, err := values.NewTaskId(id)
-	if err != nil {
-		slog.Log(ctx, slog.LevelError, err.Error()) //タスクIDのdomaiロジックから弾かれたケース
-		return &v1.DeleteTodoResponse{
-			Result: false,
-			Error:  err.Error(),
-		}, err
-	}
+	result := []entity.Todo{}
 
-	if ok, err := tuc.repository.Delete(ctx, task_id); !ok {
-		return &v1.DeleteTodoResponse{
-			Result: false,
-			Error:  err.Error(),
-		}, err
+	ok, err := tuc.repository.Delete(ctx, target_task_id)
+	if !ok {
+		return result, false, err
 	}
 
 	todos, err := tuc.repository.GetAll(ctx)
 	if err != nil {
-		return &v1.DeleteTodoResponse{Result: false}, err
-	}
-	var result []*v1.Todo
-	for _, todo := range todos {
-		result = append(result, EntityToGrpcMessage(todo))
+		return result, ok, err
 	}
 
-	return &v1.DeleteTodoResponse{
-		Result:    true,
-		AtherTodo: result,
-	}, nil
+	for _, todo := range todos {
+		result = append(result, todo)
+	}
+
+	return result, true, nil
 }
 
-func (tuc *TodoUseCase[repoType]) FindAll(ctx context.Context, req *v1.SearchRequest) (*v1.TodoListResponse, error) {
-	query_string := req.GetQuery()
+func (tuc *TodoUseCase[repoType]) FindAll(ctx context.Context, query string, is_sorting bool) ([]entity.Todo, error) {
 
-	todos, err := tuc.repository.FindAll(ctx, query_string)
+	todos, err := tuc.repository.FindAll(ctx, query)
 	if err != nil {
-		return &v1.TodoListResponse{
-			Result: make([]*v1.Todo, 0),
-			Error:  err.Error(),
-		}, nil
+		return make([]entity.Todo, 0), err
 	}
 
-	var grpc_todos []*v1.Todo
-	for _, todo := range todos {
-		grpc_todos = append(grpc_todos, EntityToGrpcMessage(todo))
+	// sort function
+	if is_sorting {
+		sorted_todo, err := sortTodo(todos)
+		if err != nil {
+			return todos, err
+		}
+		return sorted_todo, nil
 	}
 
-	return &v1.TodoListResponse{
-		Result: grpc_todos,
-		Error:  "",
-	}, nil
+	return todos, nil
 }
 
-func (tuc *TodoUseCase[repoType]) UpdateTodo(ctx context.Context, req *v1.UpdateTodoRequest) (*v1.UpdateTodoResponse, error) {
-	todo := req.GetTodo()
-	entity_todo, err := GrpcMessageToEntity(todo)
+func (tuc *TodoUseCase[repoType]) UpdateTodo(ctx context.Context, target_todo entity.Todo) (entity.Todo, error) {
 
+	updated_todo_with_id, err := tuc.repository.Update(ctx, target_todo)
 	if err != nil {
-		slog.Log(ctx, slog.LevelError, err.Error()+" at Grpc Todo => entity todo trancelate funcition")
-		return &v1.UpdateTodoResponse{Result: false, Err: err.Error()}, err
+		return updated_todo_with_id, err
 	}
-
-	_, err = tuc.repository.Update(ctx, *entity_todo)
-	if err != nil {
-		slog.Log(ctx, slog.LevelError, err.Error()+" at repository.Update")
-		return &v1.UpdateTodoResponse{Result: false, Err: err.Error()}, err
-	}
-
-	return &v1.UpdateTodoResponse{Result: true, Err: ""}, nil
+	return updated_todo_with_id, nil
 }

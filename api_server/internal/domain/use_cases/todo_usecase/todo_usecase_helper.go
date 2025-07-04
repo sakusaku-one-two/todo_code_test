@@ -2,71 +2,63 @@ package todo_usecase
 
 import (
 	entity "api/internal/domain/entitys/todo_entity"
-	values "api/internal/domain/values/todo_values"
-	grpc_connection "api/internal/grpc_gen/todo/v1"
-
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"context"
+	"log/slog"
 )
 
-func EntityToGrpcMessage(entity_todo entity.Todo) *grpc_connection.Todo {
+type Sort_engin_function_type = func(todos []entity.Todo) ([]entity.Todo, error)
 
-	return &grpc_connection.Todo{
-		Id:          int_to_int32(entity_todo.Id.GetValue()),
-		Title:       entity_todo.Title.GetValue(),
-		Description: entity_todo.Description.GetValue(),
-		LimitTime:   timestamppb.New(entity_todo.Limit.GetValue()),
-		CreatedAt:   timestamppb.New(entity_todo.Created_at),
-		UpdatedAt:   timestamppb.New(entity_todo.Update_at),
-		Status:      grpc_connection.Status(values.GetTodoStatusNumber(entity_todo.Status)),
-		IsActivate:  entity_todo.Is_activate,
+type SortService struct {
+	sort_engin Sort_engin_function_type
+}
+
+func NewSort(di_sort_engin Sort_engin_function_type) *SortService {
+	return &SortService{ //とりあえずヒープに置く
+		sort_engin: di_sort_engin,
 	}
 }
 
-func GrpcMessageToEntity(grpc_todo *grpc_connection.Todo) (*entity.Todo, error) {
-
-	title, err := values.NewTitle(grpc_todo.Title)
+func (ss *SortService) Execute(ctx context.Context, todos []entity.Todo) []entity.Todo {
+	result, err := ss.sort_engin(todos)
 	if err != nil {
-		return nil, err
+		slog.Log(ctx, slog.LevelError, err.Error()+"at sort function")
+		return todos
 	}
-
-	Description, err := values.NewDescription(grpc_todo.Description)
-	if err != nil {
-		return nil, err
-	}
-
-	status, err := values.GetTodoStatus(int(grpc_todo.Status.Number()))
-	if err != nil {
-		return nil, err
-	}
-
-	id, err := values.NewTaskId(int32_to_int(grpc_todo.Id))
-	if err != nil {
-		return nil, err
-	}
-
-	limit, err := values.NewLimit(grpc_todo.LimitTime.AsTime())
-	if err != nil {
-		return nil, err
-	}
-
-	return &entity.Todo{
-		Id:          id,
-		Title:       title,
-		Description: Description,
-		Limit:       limit,
-		Status:      status,
-		Is_activate: grpc_todo.IsActivate,
-		Update_at:   grpc_todo.UpdatedAt.AsTime(),
-		Created_at:  grpc_todo.CreatedAt.AsTime(),
-	}, nil
-
+	return result
 }
 
-func int32_to_int(target *int32) int {
-	return int(*target)
+// 再帰を使用した分割ソート.. さあ　スタックを食い潰そう　(｀・ω・´)
+func RecSort(todos []entity.Todo) ([]entity.Todo, error) {
+
+	if is_not_divisible_this(todos) { //分割不可能か判定
+		return todos, nil
+	}
+
+	median_date := getMedian(todos)          //time.Timeの中央値の取得
+	var l_list, r_list, result []entity.Todo // 分割するリスト
+
+	for _, todo := range todos {
+		if todo.Limit.GetValue() <= median_date {
+			l_list = append(l_list, todo)
+		} else {
+			r_list = append(r_list, todo)
+		}
+	}
+
+	l_list, err := RecSort(l_list)
+	if err != nil {
+		return todos, err
+	}
+	r_list, err = RecSort(r_list)
+	if err != nil {
+		return todos, err
+	}
+	result = append(result, l_list...)
+	result = append(result, r_list...)
+
+	return result, nil
 }
 
-func int_to_int32(target int) *int32 {
-	result := int32(target)
-	return &result
+func is_not_divisible_this(todos []entity.Todo) bool {
+
 }

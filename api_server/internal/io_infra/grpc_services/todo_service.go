@@ -3,6 +3,7 @@ package grpc_services
 import (
 	repo "api/internal/domain/repository/todo_repository"
 	todo_use_case "api/internal/domain/use_cases/todo_usecase"
+	values "api/internal/domain/values/todo_values"
 	v1 "api/internal/grpc_gen/todo/v1"
 	"context"
 	"log/slog"
@@ -12,7 +13,7 @@ import (
 )
 
 type TodoServer struct {
-	todo_use_case *todo_use_case.TodoUseCase[*repo.TodoRepository]
+	todo_use_case *todo_use_case.ITodoUseCase[*repo.TodoRepository]
 }
 
 func NewTodoGrpcServer() *TodoServer {
@@ -80,9 +81,25 @@ func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1
 }
 
 func (ts TodoServer) DeleteTodo(ctx context.Context, req *connect.Request[v1.DeleteTodoRequest]) (*connect.Response[v1.DeleteTodoResponse], error) {
+	target_id_as_1nt32 := req.Msg.GetId()
+	target_id, err := values.NewTaskId[int](int(target_id_as_1nt32))
 
-	response, err := ts.todo_use_case.DeleteTodo(ctx, req.Msg)
-	return connect.NewResponse(response), err
+	if err != nil {
+		slog.Log(ctx, slog.LevelError, err.Error())
+		return connect.NewResponse(&v1.DeleteTodoResponse{Result: false, AtherTodo: []*v1.Todo{}}), err
+	}
+	entiry_todos, ok, err := ts.todo_use_case.DeleteTodo(ctx, target_id)
+	grpc_todos := make([]*v1.Todo, 0)
+
+	for _, todo := range entiry_todos {
+		grpc_todos = append(grpc_todos, EntityToGrpcMessage(*todo))
+	}
+
+	return connect.NewResponse(&v1.DeleteTodoResponse{
+		Result:    ok,
+		AtherTodo: grpc_todos,
+		Error:     err.Error(),
+	}), err
 }
 
 func (ts TodoServer) UpdateTodo(ctx context.Context, req *connect.Request[v1.UpdateTodoRequest]) (*connect.Response[v1.UpdateTodoResponse], error) {
