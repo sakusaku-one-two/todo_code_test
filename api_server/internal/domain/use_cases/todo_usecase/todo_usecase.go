@@ -19,13 +19,12 @@ func NewTodoUseCase[repoType repo.IRepository[models.Todo, entity.Todo, values.T
 	return todo_usecase
 }
 
-func (tuc *TodoUseCase[repoType]) CreateTodo(ctx context.Context, new_entity_todo entity.Todo) (entity.Todo, error) {
+func (tuc *TodoUseCase[repoType]) CreateTodo(ctx context.Context, entity_todo entity.Todo) (entity.Todo, error) {
 
-	inserted_todo, err := tuc.repository.Create(ctx, new_entity_todo)
+	inserted_todo, err := tuc.repository.Create(ctx, entity_todo)
 	if err != nil {
 		return entity.Todo{}, err
 	}
-
 	return inserted_todo, nil
 }
 
@@ -35,7 +34,6 @@ func (tuc *TodoUseCase[repoType]) GetAllTodo(ctx context.Context, is_sorting boo
 	if err != nil {
 		return make([]entity.Todo, 0), err
 	}
-
 	if is_sorting {
 		sort := NewSort(RecSort)
 		sorted_todos := sort.Execute(ctx, todos)
@@ -51,12 +49,10 @@ func (tuc *TodoUseCase[repoType]) DeleteTodo(ctx context.Context, target_task_id
 	if !ok {
 		return result, false, err
 	}
-
 	todos, err := tuc.repository.GetAll(ctx)
 	if err != nil {
 		return result, ok, err
 	}
-
 	result = append(result, todos...)
 	return result, true, nil
 }

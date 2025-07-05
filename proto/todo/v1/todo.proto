@@ -39,6 +39,7 @@ message GetALLRequest {
 
 message SearchRequest {
   string query = 1;
+  bool is_sort = 2;
 }
 
 
@@ -86,6 +87,7 @@ message UpdateTodoRequest {
 message UpdateTodoResponse {
     bool  result = 1;
     string err = 2;
+    Todo todo = 3;
 }
 
 service TodoService {

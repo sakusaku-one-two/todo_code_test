@@ -13,7 +13,7 @@ import (
 )
 
 type TodoServer struct {
-	todo_use_case *todo_use_case.ITodoUseCase[*repo.TodoRepository]
+	todo_use_case *todo_use_case.TodoUseCase[*repo.TodoRepository]
 }
 
 func NewTodoGrpcServer() *TodoServer {
@@ -27,14 +27,48 @@ func NewTodoGrpcServer() *TodoServer {
 }
 
 func (ts TodoServer) CreateTodo(ctx context.Context, req *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error) {
+	grpc_todo := req.Msg.GetRequestTodo()
+	entity_todo, err := GrpcMessageToEntity(grpc_todo)
+	if err != nil {
+		return connect.NewResponse(&v1.CreateTodoResponse{
+			Result: false,
+			Error:  err.Error(),
+		}), err
+	}
 
-	response, err := ts.todo_use_case.CreateTodo(ctx, req.Msg)
-	return connect.NewResponse(response), err
+	entity_todo_with_id, err := ts.todo_use_case.CreateTodo(ctx, *entity_todo)
+	if err != nil {
+		return connect.NewResponse(&v1.CreateTodoResponse{
+			Result: false,
+			Error:  err.Error(),
+		}), err
+	}
+
+	grpc_todo = EntityToGrpcMessage(entity_todo_with_id)
+
+	return connect.NewResponse(&v1.CreateTodoResponse{
+		Result:      true,
+		CreatedTodo: grpc_todo,
+		Error:       "",
+	}), nil
 }
 func (ts TodoServer) GetAllTodo(ctx context.Context, req *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error) {
 
-	response, err := ts.todo_use_case.GetAllTodo(ctx, req.Msg)
-	return connect.NewResponse(response), err
+	entity_todo_list, err := ts.todo_use_case.GetAllTodo(ctx, req.Msg.GetIsSort())
+	if err != nil {
+		return connect.NewResponse(&v1.TodoListResponse{
+			Result: make([]*v1.Todo, 0),
+			Error:  err.Error(),
+		}), err
+	}
+	var grpc_todos []*v1.Todo
+	for _, todo := range entity_todo_list {
+		grpc_todos = append(grpc_todos, EntityToGrpcMessage(todo))
+	}
+	return connect.NewResponse(&v1.TodoListResponse{
+		Result: grpc_todos,
+		Error:  "",
+	}), nil
 }
 
 func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1.SearchRequest, v1.TodoListResponse]) error {
@@ -62,7 +96,20 @@ func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1
 	go func() { // ユースケースにリクエストを渡してレスポンスを送信専用チャネルに渡すためのゴルーチン
 		defer wg.Done()
 		for req := range Request_channel {
-			res, _ := ts.todo_use_case.FindAll(ctx, req)
+			todos, err := ts.todo_use_case.FindAll(ctx, req.GetQuery(), req.GetIsSort())
+			var grpc_todos []*v1.Todo
+			for _, todo := range todos {
+				grpc_todos = append(grpc_todos, EntityToGrpcMessage(todo))
+			}
+			var err_msg string
+			if err != nil {
+				err_msg = err.Error()
+			}
+			res := &v1.TodoListResponse{
+				Result: grpc_todos,
+				Error:  err_msg,
+			}
+			err_msg = ""
 			Response_channel <- res
 		}
 		close(Response_channel) //送信専用ゴルーチンのイベントループを終了させるためのclose
@@ -82,7 +129,7 @@ func (ts TodoServer) FindTodo(ctx context.Context, stream *connect.BidiStream[v1
 
 func (ts TodoServer) DeleteTodo(ctx context.Context, req *connect.Request[v1.DeleteTodoRequest]) (*connect.Response[v1.DeleteTodoResponse], error) {
 	target_id_as_1nt32 := req.Msg.GetId()
-	target_id, err := values.NewTaskId[int](int(target_id_as_1nt32))
+	target_id, err := values.NewTaskId(int(target_id_as_1nt32))
 
 	if err != nil {
 		slog.Log(ctx, slog.LevelError, err.Error())
@@ -92,7 +139,7 @@ func (ts TodoServer) DeleteTodo(ctx context.Context, req *connect.Request[v1.Del
 	grpc_todos := make([]*v1.Todo, 0)
 
 	for _, todo := range entiry_todos {
-		grpc_todos = append(grpc_todos, EntityToGrpcMessage(*todo))
+		grpc_todos = append(grpc_todos, EntityToGrpcMessage(todo))
 	}
 
 	return connect.NewResponse(&v1.DeleteTodoResponse{
@@ -103,7 +150,22 @@ func (ts TodoServer) DeleteTodo(ctx context.Context, req *connect.Request[v1.Del
 }
 
 func (ts TodoServer) UpdateTodo(ctx context.Context, req *connect.Request[v1.UpdateTodoRequest]) (*connect.Response[v1.UpdateTodoResponse], error) {
-	res, err := ts.todo_use_case.UpdateTodo(ctx, req.Msg)
-	return connect.NewResponse(res), err
+	grpc_todo := req.Msg.GetTodo()
+	entity_todo, err := GrpcMessageToEntity(grpc_todo)
+	if err != nil {
+		return connect.NewResponse(&v1.UpdateTodoResponse{Result: false, Err: err.Error()}), err
+	}
+
+	id_in_todo, err := ts.todo_use_case.UpdateTodo(ctx, *entity_todo)
+
+	if err != nil {
+		return connect.NewResponse(&v1.UpdateTodoResponse{Result: false, Err: err.Error()}), err
+	}
+
+	new_grpc_todo := EntityToGrpcMessage(id_in_todo)
+	return connect.NewResponse(&v1.UpdateTodoResponse{
+		Result: true,
+		Todo:   new_grpc_todo,
+	}), nil
 
 }
