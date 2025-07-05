@@ -4,6 +4,7 @@ import (
 	entity "api/internal/domain/entitys/todo_entity"
 	"context"
 	"log/slog"
+	"time"
 )
 
 type Sort_engin_function_type = func(todos []entity.Todo) ([]entity.Todo, error)
@@ -30,15 +31,21 @@ func (ss *SortService) Execute(ctx context.Context, todos []entity.Todo) []entit
 // 再帰を使用した分割ソート.. さあ　スタックを食い潰そう　(｀・ω・´)
 func RecSort(todos []entity.Todo) ([]entity.Todo, error) {
 
+	defer func() {
+		if err := recover(); err != nil {
+
+		}
+	}()
+
 	if is_not_divisible_this(todos) { //分割不可能か判定
 		return todos, nil
 	}
 
-	median_date := getMedian(todos)          //time.Timeの中央値の取得
+	median_date := getAverage(todos)         //time.Timeの中央値の取得
 	var l_list, r_list, result []entity.Todo // 分割するリスト
 
 	for _, todo := range todos {
-		if todo.Limit.GetValue() <= median_date {
+		if todo.Limit.GetValue().After(median_date) {
 			l_list = append(l_list, todo)
 		} else {
 			r_list = append(r_list, todo)
@@ -60,5 +67,37 @@ func RecSort(todos []entity.Todo) ([]entity.Todo, error) {
 }
 
 func is_not_divisible_this(todos []entity.Todo) bool {
+	if len(todos) <= 1 {
+		return true
+	}
 
+	first_time := todos[0].Limit.GetValue()
+
+	for _, todo := range todos[1:] {
+		if !first_time.Equal(todo.Limit.GetValue()) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func getAverage(todos []entity.Todo) time.Time {
+
+	var all_times []time.Time
+
+	for _, todo := range todos {
+		all_times = append(all_times, todo.Limit.GetValue())
+	}
+
+	var target int64
+
+	for _, time_value := range all_times {
+
+		target += time_value.Unix()
+	}
+
+	average_int64 := target / int64(len(all_times))
+
+	return time.Unix(average_int64, 0)
 }

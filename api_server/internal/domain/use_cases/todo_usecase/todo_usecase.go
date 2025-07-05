@@ -27,7 +27,6 @@ func (tuc *TodoUseCase[repoType]) CreateTodo(ctx context.Context, new_entity_tod
 	}
 
 	return inserted_todo, nil
-
 }
 
 func (tuc *TodoUseCase[repoType]) GetAllTodo(ctx context.Context, is_sorting bool) ([]entity.Todo, error) {
@@ -38,7 +37,8 @@ func (tuc *TodoUseCase[repoType]) GetAllTodo(ctx context.Context, is_sorting boo
 	}
 
 	if is_sorting {
-		sorted_todos, err := sortTodo(todos)
+		sort := NewSort(RecSort)
+		sorted_todos := sort.Execute(ctx, todos)
 		if err != nil {
 			return todos, err
 		}
@@ -50,7 +50,6 @@ func (tuc *TodoUseCase[repoType]) GetAllTodo(ctx context.Context, is_sorting boo
 func (tuc *TodoUseCase[repoType]) DeleteTodo(ctx context.Context, target_task_id values.TaskId[int]) ([]entity.Todo, bool, error) { // （残りのタスク、削除成功かどうかの結果、エラー）
 
 	result := []entity.Todo{}
-
 	ok, err := tuc.repository.Delete(ctx, target_task_id)
 	if !ok {
 		return result, false, err
@@ -77,10 +76,8 @@ func (tuc *TodoUseCase[repoType]) FindAll(ctx context.Context, query string, is_
 
 	// sort function
 	if is_sorting {
-		sorted_todo, err := sortTodo(todos)
-		if err != nil {
-			return todos, err
-		}
+		sort := NewSort(RecSort)
+		sorted_todo := sort.Execute(ctx, todos)
 		return sorted_todo, nil
 	}
 
