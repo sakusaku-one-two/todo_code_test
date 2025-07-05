@@ -1,10 +1,10 @@
 package todo_usecase
 
 import (
-	repo "api/internal/domain/repository/todo_repository"
+	entity "api/internal/domain/entitys/todo_entity"
+	repo "api/internal/domain/repository"
 	values "api/internal/domain/values/todo_values"
 	models "api/internal/io_infra/database/models"
-	entity "api/internal/io_infra/domain/entitys/todo_entity"
 	"context"
 )
 

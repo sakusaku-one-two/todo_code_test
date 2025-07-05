@@ -1,8 +1,10 @@
 package todo_usecase
 
 import (
+	entity "api/internal/domain/entitys/todo_entity"
 	repo "api/internal/domain/repository/todo_repository"
-
+	values "api/internal/domain/values/todo_values"
+	"context"
 	"fmt"
 	"testing"
 
@@ -63,7 +65,6 @@ func init() {
 
 // }
 
-
 // func Test_delete_from_use_case(t *testing.T) {
 // 	new_todo := generate_grpc_todo(12,"sample","sample_description",time.Now().Add(15*time.Hour))
 // 	entiry_todo,err := ConvertModel[v1.Todo,entity.Todo](new_todo)
@@ -73,17 +74,31 @@ func init() {
 // 	res := todo_use_case.
 // }
 
+func time_(t time.Duration) values.Limit {
+	return_value, _ := values.NewLimit(time.Now().Add(t))
+	return return_value
+}
 
+func CreateTodo() []entity.Todo {
+	return []entity.Todo{
+		entity.Todo{Limit: time_(100 * time.Hour)},
+		entity.Todo{Limit: time_(10 * time.Hour)},
+		entity.Todo{Limit: time_(170 * time.Hour)},
+		entity.Todo{Limit: time_(150 * time.Hour)},
+	}
 
+}
 
-func Test_sort(t *testing.T){
-	time_list  := make([]time.Time,0)
-
-	for i:=1; i<=20; 
-
-	fmt.Println(getAverage())
-
-
-
+func Test_avarage(t *testing.T) {
+	todos := CreateTodo()
+	for i, todo := range todos {
+		fmt.Println(i, todo.Limit.GetValue())
+	}
+	ctx := context.Background()
+	sort := NewSort(RecSort)
+	reuslt := sort.Execute(ctx, todos)
+	for idx, todo := range reuslt {
+		fmt.Println(idx, todo.Limit.GetValue())
+	}
 
 }

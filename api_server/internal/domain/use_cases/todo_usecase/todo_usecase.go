@@ -39,9 +39,6 @@ func (tuc *TodoUseCase[repoType]) GetAllTodo(ctx context.Context, is_sorting boo
 	if is_sorting {
 		sort := NewSort(RecSort)
 		sorted_todos := sort.Execute(ctx, todos)
-		if err != nil {
-			return todos, err
-		}
 		return sorted_todos, nil
 	}
 	return todos, nil
@@ -60,10 +57,7 @@ func (tuc *TodoUseCase[repoType]) DeleteTodo(ctx context.Context, target_task_id
 		return result, ok, err
 	}
 
-	for _, todo := range todos {
-		result = append(result, todo)
-	}
-
+	result = append(result, todos...)
 	return result, true, nil
 }
 

@@ -41,11 +41,11 @@ func RecSort(todos []entity.Todo) ([]entity.Todo, error) {
 		return todos, nil
 	}
 
-	median_date := getAverage(todos)         //time.Timeの中央値の取得
+	avarage_date := getAverage(todos)        //time.Timeの中央値の取得
 	var l_list, r_list, result []entity.Todo // 分割するリスト
 
 	for _, todo := range todos {
-		if todo.Limit.GetValue().After(median_date) {
+		if todo.Limit.GetValue().Before(avarage_date) {
 			l_list = append(l_list, todo)
 		} else {
 			r_list = append(r_list, todo)
@@ -83,21 +83,14 @@ func is_not_divisible_this(todos []entity.Todo) bool {
 }
 
 func getAverage(todos []entity.Todo) time.Time {
-
 	var all_times []time.Time
-
 	for _, todo := range todos {
 		all_times = append(all_times, todo.Limit.GetValue())
 	}
-
 	var target int64
-
 	for _, time_value := range all_times {
-
 		target += time_value.Unix()
 	}
-
 	average_int64 := target / int64(len(all_times))
-
 	return time.Unix(average_int64, 0)
 }
