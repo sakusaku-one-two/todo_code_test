@@ -28,16 +28,36 @@ func NewTodoGrpcServer() *TodoServer {
 }
 
 func (ts TodoServer) CreateTodo(ctx context.Context, req *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error) {
+	var e error
 
 	grpc_todo := req.Msg.GetRequestTodo()
 
 	title, err := values.NewTitle(grpc_todo.Title)
+	if err != nil {
+		slog.Log(ctx, slog.LevelDebug, err.Error())
+		e = err
+	}
 
 	description, err := values.NewDescription(grpc_todo.Description)
+	if err != nil {
+		e = err
+	}
 
 	limit, err := values.NewLimit(grpc_todo.LimitTime.AsTime())
-
+	if err != nil {
+		e = err
+	}
 	status, err := values.GetTodoStatus(values.INCOMPETE)
+	if err != nil {
+		e = err
+	}
+
+	if e != nil {
+		return connect.NewResponse(&v1.CreateTodoResponse{
+			Error:  e.Error(),
+			Result: false,
+		}), e
+	}
 
 	entity_todo := entity.Todo{
 		Title:       title,
