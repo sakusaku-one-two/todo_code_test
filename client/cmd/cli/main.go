@@ -172,7 +172,7 @@ func FindSerch(todo_service_client todov1connect.TodoServiceClient) {
 		fmt.Println("検索するタイトルを入力してください。（部分検索可能）")
 
 		fmt.Scan(&input_var)
-		conn.Send(&v1.SearchRequest{Query: input_var})
+		conn.Send(&v1.SearchRequest{Query: input_var, IsSort: true})
 
 		res, err := conn.Receive()
 		if err != nil {

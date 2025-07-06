@@ -1,6 +1,7 @@
 package grpc_services
 
 import (
+	entity "api/internal/domain/entitys/todo_entity"
 	repo "api/internal/domain/repository/todo_repository"
 	todo_use_case "api/internal/domain/use_cases/todo_usecase"
 	values "api/internal/domain/values/todo_values"
@@ -27,8 +28,24 @@ func NewTodoGrpcServer() *TodoServer {
 }
 
 func (ts TodoServer) CreateTodo(ctx context.Context, req *connect.Request[v1.CreateTodoRequest]) (*connect.Response[v1.CreateTodoResponse], error) {
+
 	grpc_todo := req.Msg.GetRequestTodo()
-	entity_todo, err := GrpcMessageToEntity(grpc_todo)
+
+	title, err := values.NewTitle(grpc_todo.Title)
+
+	description, err := values.NewDescription(grpc_todo.Description)
+
+	limit, err := values.NewLimit(grpc_todo.LimitTime.AsTime())
+
+	status, err := values.GetTodoStatus(values.INCOMPETE)
+
+	entity_todo := entity.Todo{
+		Title:       title,
+		Description: description,
+		Limit:       limit,
+		Status:      status,
+	}
+
 	if err != nil {
 		return connect.NewResponse(&v1.CreateTodoResponse{
 			Result: false,
@@ -36,7 +53,7 @@ func (ts TodoServer) CreateTodo(ctx context.Context, req *connect.Request[v1.Cre
 		}), err
 	}
 
-	entity_todo_with_id, err := ts.todo_use_case.CreateTodo(ctx, *entity_todo)
+	entity_todo_with_id, err := ts.todo_use_case.CreateTodo(ctx, entity_todo)
 	if err != nil {
 		return connect.NewResponse(&v1.CreateTodoResponse{
 			Result: false,
@@ -51,6 +68,7 @@ func (ts TodoServer) CreateTodo(ctx context.Context, req *connect.Request[v1.Cre
 		CreatedTodo: grpc_todo,
 		Error:       "",
 	}), nil
+
 }
 func (ts TodoServer) GetAllTodo(ctx context.Context, req *connect.Request[v1.GetALLRequest]) (*connect.Response[v1.TodoListResponse], error) {
 
@@ -136,6 +154,12 @@ func (ts TodoServer) DeleteTodo(ctx context.Context, req *connect.Request[v1.Del
 		return connect.NewResponse(&v1.DeleteTodoResponse{Result: false, AtherTodo: []*v1.Todo{}}), err
 	}
 	entiry_todos, ok, err := ts.todo_use_case.DeleteTodo(ctx, target_id)
+	if err != nil {
+		return connect.NewResponse(&v1.DeleteTodoResponse{
+			Result: ok,
+			Error:  err.Error(),
+		}), err
+	}
 	grpc_todos := make([]*v1.Todo, 0)
 
 	for _, todo := range entiry_todos {
@@ -145,8 +169,8 @@ func (ts TodoServer) DeleteTodo(ctx context.Context, req *connect.Request[v1.Del
 	return connect.NewResponse(&v1.DeleteTodoResponse{
 		Result:    ok,
 		AtherTodo: grpc_todos,
-		Error:     err.Error(),
-	}), err
+		Error:     "",
+	}), nil
 }
 
 func (ts TodoServer) UpdateTodo(ctx context.Context, req *connect.Request[v1.UpdateTodoRequest]) (*connect.Response[v1.UpdateTodoResponse], error) {
